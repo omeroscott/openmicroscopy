@@ -56,7 +56,8 @@ def additional_tests():
     suite.addTest(load("scriptstest.suite._additional_tests"))
     suite.addTest(load("scriptstest.integration_suite._additional_tests"))
     suite.addTest(load("tablestest.suite._additional_tests"))
-    suite.addTest(load("tablestest.integration_suite._additional_tests"))
+    suite.addTest(load("havenstest.integration_suite._additional_tests"))
+    suite.addTest(load("havenstest.integration_suite._additional_tests"))
 
     return suite
 

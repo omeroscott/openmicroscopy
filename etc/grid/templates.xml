@@ -307,37 +307,16 @@
       </server> 
     </server-template>-->
 
-    <server-template id="ProcessorTemplate">
+    <server-template id="PyTemplate">
+      <parameter name="name"/>
       <parameter name="index"/>
       <parameter name="dir"/>
       <parameter name="exe" default="${PYTHON}"/>
-      <server id="Processor-${index}" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
-        <option>${OMEROPY_HOME}runProcessor.py</option>
+      <server id="${name}-${index}" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
+        <option>${OMEROPY_HOME}run${name}.py</option>
         <env>${PYTHONPATH}</env>
-        <adapter name="ProcessorAdapter" endpoints="tcp">
-          <object identity="Processor-${index}" type="::omero::grid::Processor"/>
-        </adapter>
-        <properties>
-          <properties refid="Basics"/>
-          <properties refid="PythonServer"/>
-          <properties refid="CppServer"/>
-          <properties refid="MultiThreaded"/>
-          <properties refid="Repository"/>
-          <properties refid="Profile"/>
-          <property name="omero.repo.dir" value="${dir}"/>
-        </properties>
-      </server>
-    </server-template>
-
-    <server-template id="TablesTemplate">
-      <parameter name="index"/>
-      <parameter name="dir"/>
-      <parameter name="exe" default="${PYTHON}"/>
-      <server id="Tables-${index}" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
-        <option>${OMEROPY_HOME}runTables.py</option>
-        <env>${PYTHONPATH}</env>
-        <adapter name="TablesAdapter" endpoints="tcp">
-          <object identity="Tables-${index}" type="::omero::grid::Tables"/>
+        <adapter name="${name}Adapter" endpoints="tcp">
+          <object identity="${name}-${index}" type="::omero::grid::${name}"/>
         </adapter>
         <properties>
           <properties refid="Basics"/>
