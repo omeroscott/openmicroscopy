@@ -12,10 +12,6 @@ import ome.services.util.Executor;
 import ome.util.SqlAction;
 import omero.ServerError;
 import omero.model.OriginalFile;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import Ice.Current;
 
 /**
@@ -26,8 +22,6 @@ import Ice.Current;
  * @since Beta4.1
  */
 public class LegacyRepositoryI extends AbstractRepositoryI {
-
-    private final static Log log = LogFactory.getLog(LegacyRepositoryI.class);
 
     private final OriginalFilesService fs;
 
@@ -43,6 +37,9 @@ public class LegacyRepositoryI extends AbstractRepositoryI {
     }
 
     /**
+     * Unlike the other implementations of AbstractRepositoryI, this
+     * implementation accepts only files with no repo set.
+     *
      * @DEV.TODO CACHING
      */
     public String getFilePath(final OriginalFile file, Current __current)

@@ -48,19 +48,19 @@ import Ice.ObjectAdapter;
  */
 public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
 
-    private final static Log log = LogFactory.getLog(AbstractRepositoryI.class);
+    protected final Log log = LogFactory.getLog(getClass());
 
     private final Ice.ObjectAdapter oa;
 
     private final Registry reg;
 
-    private final Executor ex;
+    protected final Executor ex;
 
-    private final Principal p;
+    protected final Principal p;
 
-    private final SqlAction sql;
+    protected final SqlAction sql;
 
-    private final FileMaker fileMaker;
+    protected final FileMaker fileMaker;
 
     private OriginalFile description;
 
@@ -170,8 +170,23 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
         return proxy;
     }
 
-    public abstract String getFilePath(final OriginalFile file,
-            Current __current) throws ServerError;
+    /**
+     * @DEV.TODO CACHING
+     */
+    public String getFilePath(final OriginalFile file, Current __current)
+            throws ServerError {
+
+        String repo = getFileRepo(file);
+        String uuid = getRepoUuid();
+
+        if (repo == null || !repo.equals(uuid)) {
+            throw new omero.ValidationException(null, null, repo
+                    + " does not belong to this repository: " + uuid);
+        }
+
+        return file.getPath() == null ? null : file.getPath().getValue();
+
+    }
 
     // UNIMPLEMENTED
     // =========================================================================
@@ -279,8 +294,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                 // Servants
                 //
 
-                PublicRepositoryI pr = new PublicRepositoryI(new File(fileMaker
-                        .getDir()), r.getId(), ex, sql, p);
+                PublicRepositoryI pr = createPublicRepository(r);
 
                 Ice.ObjectPrx internalObj = addOrReplace("InternalRepository-", repo);
                 Ice.ObjectPrx externalObj = addOrReplace("PublicRepository-", pr);
@@ -358,6 +372,20 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
 
         return (String) map.get("repo");
 
+    }
+
+    /**
+     * Extension method which can be overwritten by subclasses to allow for
+     * specific repository implementations.
+     * @param r
+     * @return
+     * @throws Exception
+     */
+    protected PublicRepositoryI createPublicRepository(
+            ome.model.core.OriginalFile r) throws Exception {
+        PublicRepositoryI pr = new PublicRepositoryI(new File(fileMaker
+                .getDir()), r.getId(), ex, sql, p);
+        return pr;
     }
 
 }

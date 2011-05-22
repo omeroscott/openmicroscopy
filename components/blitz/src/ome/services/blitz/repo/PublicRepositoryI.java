@@ -109,7 +109,7 @@ import Ice.Current;
  */
 public class PublicRepositoryI extends _RepositoryDisp {
 
-    private final static Log log = LogFactory.getLog(PublicRepositoryI.class);
+    protected final Log log = LogFactory.getLog(getClass());
 
     /* These two path elements make up the local thumbnail cache */
     private final static String OMERO_PATH = ".omero";

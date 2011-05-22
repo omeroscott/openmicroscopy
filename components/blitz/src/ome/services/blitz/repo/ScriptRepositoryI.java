@@ -12,10 +12,6 @@ import ome.services.util.Executor;
 import ome.util.SqlAction;
 import omero.ServerError;
 import omero.model.OriginalFile;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import Ice.Current;
 import Ice.ObjectAdapter;
 
@@ -25,8 +21,6 @@ import Ice.ObjectAdapter;
  * @since Beta4.2
  */
 public class ScriptRepositoryI extends AbstractRepositoryI {
-
-    private final static Log log = LogFactory.getLog(ScriptRepositoryI.class);
 
     private final ScriptRepoHelper helper;
 
