@@ -280,21 +280,23 @@ public interface Executor extends ApplicationContextAware {
         final protected SessionFactory factory;
         final protected SqlAction sqlAction;
         final protected ExecutorService service;
+        final protected Advice txAdvice;
 
         public Impl(CurrentDetails principalHolder, SessionFactory factory,
-                SqlAction sqlAction, String[] proxyNames) {
-            this(principalHolder, factory, sqlAction, proxyNames,
+                SqlAction sqlAction, String[] proxyNames, Advice txAdvice) {
+            this(principalHolder, factory, sqlAction, proxyNames, txAdvice,
                     java.util.concurrent.Executors.newCachedThreadPool());
         }
 
         public Impl(CurrentDetails principalHolder, SessionFactory factory,
-                SqlAction sqlAction, String[] proxyNames,
+                SqlAction sqlAction, String[] proxyNames, Advice txAdvice,
                 ExecutorService service) {
             this.sqlAction = sqlAction;
             this.factory = factory;
             this.principalHolder = principalHolder;
             this.proxyNames = proxyNames;
             this.service = service;
+            this.txAdvice = txAdvice;
         }
 
         public void setApplicationContext(ApplicationContext applicationContext)
@@ -416,7 +418,7 @@ public interface Executor extends ApplicationContextAware {
             ProxyFactory factory = new ProxyFactory();
             factory.setTarget(work);
             factory.setInterfaces(new Class[] { SqlWork.class });
-            factory.addAdvice(advices.get(2)); // TX FIXME
+            factory.addAdvice(txAdvice);
             SqlWork wrapper = (SqlWork) factory.getProxy();
             return wrapper.doWork(this.sqlAction);
         }

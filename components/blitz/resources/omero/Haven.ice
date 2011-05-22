@@ -10,6 +10,7 @@
 #define OMERO_HAVEN_ICE
 
 #include <omero/Collections.ice>
+#include <omero/Repositories.ice>
 #include <omero/ServerErrors.ice>
 #include <omero/ServicesF.ice>
 
@@ -28,7 +29,7 @@ module omero {
          * Service responsible for securely storing structured data
          * based on third-party schemas previously unknown to the system.
          **/
-        interface Haven {
+        interface Haven extends Repository {
 
             /**
              *
@@ -60,6 +61,8 @@ module omero {
     // omero.api types.
     // ========================================================================
     //
+
+        // Possibly not needed in repository case.
 
         ["ami"] interface Havens {
 

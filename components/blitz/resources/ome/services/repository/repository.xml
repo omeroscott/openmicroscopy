@@ -26,14 +26,6 @@
     <constructor-arg value="${omero.repo.dir}"/>
   </bean>
 
-  <bean id="internalRepository" class="ome.services.blitz.repo.InternalRepositoryI">
-    <constructor-arg index="0" ref="Ice.ObjectAdapter"/>
-    <constructor-arg index="1" ref="Ice.Registry"/>
-    <constructor-arg index="2" ref="executor"/>
-    <constructor-arg index="3" ref="uuid"/>
-    <constructor-arg index="4" value="${omero.repo.dir}"/>
-  </bean>
-
   <bean id="executor" class="ome.services.util.Executor$Impl">
     <description>
       A partial executor which has direct DB access only.
@@ -42,12 +34,12 @@
     <constructor-arg index="1"><null/></constructor-arg>
     <constructor-arg ref="simpleSqlAction"/>
     <constructor-arg index="3"><list/></constructor-arg>
+    <constructor-arg ref="transactionHandler"/>
   </bean>
 
   <!-- This is used by ome.services.blitz.Entry to call waitForShutdown -->
   <bean id="Ice.Communicator" factory-bean="internalRepositoryConfig" factory-method="getCommunicator"/>
   <bean id="Ice.ObjectAdapter" factory-bean="internalRepositoryConfig" factory-method="getObjectAdapter"/>
   <bean id="Ice.Registry" factory-bean="internalRepositoryConfig" factory-method="getRegistry"/>
-  <bean id="publicRepository" factory-bean="internalRepository" factory-method="getProxy"/>
 
 </beans>

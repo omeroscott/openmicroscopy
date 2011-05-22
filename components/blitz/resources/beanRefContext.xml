@@ -39,7 +39,7 @@
     <constructor-arg index="1" value="true"/>
   </bean>
   
-  <bean   id="OMERO.repository"
+  <bean   id="OMERO.repository_config"
           class="ome.system.OmeroContext"
           lazy-init="true">
     <constructor-arg index="0">
@@ -47,12 +47,36 @@
         <value>classpath:ome/config.xml</value>
         <value>classpath:ome/services/messaging.xml</value>
         <value>classpath:ome/services/datalayer.xml</value>
-        <!-- Primary reason for this context -->
+        <value>classpath:ome/services/sec-primitives.xml</value>
         <value>classpath:ome/services/repository/repository.xml</value>
       </list>
     </constructor-arg>
   </bean>
-  
+
+  <bean    id="OMERO.repository"
+        class="ome.system.OmeroContext"
+    lazy-init="true">
+	<constructor-arg index="0">
+      <list>
+        <value>classpath:ome/services/repository/standalone.xml</value>
+      </list>
+    </constructor-arg>
+    <constructor-arg index="1" value="true"/>
+    <constructor-arg index="2" ref="OMERO.repository_config"/>
+  </bean>
+
+  <bean    id="OMERO.haven"
+        class="ome.system.OmeroContext"
+    lazy-init="true">
+	<constructor-arg index="0">
+      <list>
+        <value>classpath:ome/services/repository/haven.xml</value>
+      </list>
+    </constructor-arg>
+    <constructor-arg index="1" value="true"/>
+    <constructor-arg index="2" ref="OMERO.repository_config"/>
+  </bean>
+
     <bean   id="OMERO.security.test"
           class="ome.system.OmeroContext"
           lazy-init="true">

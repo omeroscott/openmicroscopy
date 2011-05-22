@@ -66,6 +66,10 @@
       </node>
     </target>
 
+    <node name="examplehaven">
+      <server-instance template="RepositoryTemplate" index="examplehaven" dir="/OMERO/ExampleHaven" impl="haven"/>
+    </node>
+
   </application>
 
 </icegrid>

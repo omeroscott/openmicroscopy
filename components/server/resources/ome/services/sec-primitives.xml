@@ -87,6 +87,9 @@
     <property name="readOnly"       value="${omero.cluster.read_only}"/>
   </bean>
 
+  <!-- init() is called on first usage to handle a cyclical dependency on session factory -->
+  <bean id="shareStore" class="ome.services.sharing.BlobShareStore" destroy-method="close"/>
+
   <bean id="methodSecurity" class="ome.security.basic.BasicMethodSecurity">
     <property name="sessionManager" ref="sessionManager"/>
   </bean>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+#
+# Copyright 2011 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-->
+
+<beans>
+
+
+  <bean id="standaloneRepository" class="ome.services.blitz.repo.InternalRepositoryI">
+    <constructor-arg index="0" ref="Ice.ObjectAdapter"/>
+    <constructor-arg index="1" ref="Ice.Registry"/>
+    <constructor-arg index="2" ref="executor"/>
+    <constructor-arg index="3" ref="simpleSqlAction"/>
+    <constructor-arg index="4" ref="uuid"/>
+    <constructor-arg index="5" value="${omero.repo.dir}"/>
+  </bean>
+
+  <bean id="publicRepository" factory-bean="standaloneRepository" factory-method="getProxy"/>
+
+</beans>

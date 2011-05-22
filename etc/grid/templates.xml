@@ -264,6 +264,7 @@
       <parameter name="index"/>
       <parameter name="dir"/>
       <parameter name="config" default="default"/>
+      <parameter name="impl" default="repository"/>
       <server id="Repository-${index}" exe="${JAVA}" activation="always" pwd="${OMERO_HOME}">
         <option>-Xmx400M</option>
         <option>-Djava.awt.headless=true</option>
@@ -273,7 +274,7 @@
         <option>-Domero.repo.dir=${dir}</option>
         <option>-jar</option>
         <option>${OMERO_JARS}blitz.jar</option>
-        <option>OMERO.repository</option>
+        <option>OMERO.${impl}</option>
         <adapter name="RepositoryAdapter" endpoints="tcp">
           <object identity="Repository-${index}" type="::omero::grid::InternalRepository"/>
         </adapter>
