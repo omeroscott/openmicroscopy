@@ -63,6 +63,7 @@ import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.util.IceMapper;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.ObjectNotFoundException;
@@ -293,8 +294,11 @@ public class SharedResourcesI extends AbstractAmdServant implements
         file.setSha1(omero.rtypes.rstring("UNKNOWN"));
         file.setMimetype(omero.rtypes.rstring("OMERO.tables"));
         file.setSize(omero.rtypes.rlong(0));
-        file.setPath(omero.rtypes.rstring(path));
-        file.setName(omero.rtypes.rstring(path));
+
+        omero.RString basename = omero.rtypes.rstring(FilenameUtils.getName(path));
+        omero.RString dirname = omero.rtypes.rstring(FilenameUtils.getFullPath(path));
+        file.setPath(dirname);
+        file.setName(basename);
 
         IObject obj = (IObject) sf.executor.execute(sf.principal, new Executor.SimpleWork(this, "newTable", repo, path) {
             @Transactional(readOnly = false)

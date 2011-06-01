@@ -612,7 +612,10 @@ class BaseClient(object):
                     ofile.name = omero.rtypes.rstring(str(abspath.basename()))
 
             if not ofile.path:
-                ofile.path = omero.rtypes.rstring(str(abspath.dirname())+os.path.sep)
+                if path:
+                    ofile.path = omero.rtypes.rstring(path)
+                else:
+                    ofile.path = omero.rtypes.rstring(str(abspath.dirname())+os.path.sep)
 
             if not ofile.mimetype:
                 if type:
