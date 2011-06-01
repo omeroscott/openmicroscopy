@@ -5,6 +5,7 @@
 """
 
 import omero_FS_ice
+import omero_Silos_ice
 import omero_Scripts_ice
 import omero_SharedResources_ice
 

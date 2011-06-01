@@ -14,6 +14,7 @@ if omero.__import_style__ is None:
     import omero_Repositories_ice
     import omero_SharedResources_ice
     import omero_Scripts_ice
+    import omero_Silos_ice
     import omero_Tables_ice
     import omero_api_Gateway_ice
     import omero_api_IAdmin_ice
