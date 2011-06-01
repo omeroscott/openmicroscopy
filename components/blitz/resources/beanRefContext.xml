@@ -65,12 +65,12 @@
     <constructor-arg index="2" ref="OMERO.repository_config"/>
   </bean>
 
-  <bean    id="OMERO.haven"
+  <bean    id="OMERO.silo"
         class="ome.system.OmeroContext"
     lazy-init="true">
 	<constructor-arg index="0">
       <list>
-        <value>classpath:ome/services/repository/haven.xml</value>
+        <value>classpath:ome/services/repository/silos.xml</value>
       </list>
     </constructor-arg>
     <constructor-arg index="1" value="true"/>

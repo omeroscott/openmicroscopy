@@ -65,7 +65,7 @@
       <server-instance template="PixelDataTemplate" index="0" dir=""/><!-- assumes legacy -->
       <server-instance template="PyTemplate" name="Processor" index="0" dir=""/><!-- assumes legacy -->
       <server-instance template="PyTemplate" name="Tables" index="0" dir=""/><!-- assumes legacy -->
-      <server-instance template="PyTemplate" name="Havens" index="0" dir=""/><!-- assumes legacy -->
+      <server-instance template="PyTemplate" name="Silos" index="0" dir=""/><!-- assumes legacy -->
       <server-instance template="TestDropBoxTemplate"/>
     </node>
 

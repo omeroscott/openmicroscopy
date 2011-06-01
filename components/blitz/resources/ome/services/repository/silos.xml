@@ -18,7 +18,7 @@
 
 <beans>
 
-  <bean id="havenRepository" class="ome.services.blitz.repo.HavenRepositoryI">
+  <bean id="siloRepository" class="ome.services.blitz.repo.siloRepositoryI">
     <constructor-arg index="0" ref="Ice.ObjectAdapter"/>
     <constructor-arg index="1" ref="Ice.Registry"/>
     <constructor-arg index="2" ref="executor"/>
@@ -27,16 +27,16 @@
     <constructor-arg index="5" value="${omero.repo.dir}"/>
   </bean>
 
-  <bean id="publicRepository" factory-bean="havenRepository" factory-method="getProxy"/>
+  <bean id="publicRepository" factory-bean="siloRepository" factory-method="getProxy"/>
 
-  <bean id="havenTakeoverRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-    <property name="targetObject" ref="havenRepository" />
+  <bean id="siloTakeoverRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    <property name="targetObject" ref="siloRepository" />
     <property name="targetMethod" value="takeover" />
     <property name="concurrent"   value="false"/>
   </bean>
 
-  <bean id="havenTakeoverTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
-    <property name="jobDetail" ref="havenTakeoverRun" />
+  <bean id="siloTakeoverTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+    <property name="jobDetail" ref="siloTakeoverRun" />
     <property name="repeatInterval" value="60000" />
   </bean>
 

@@ -32,54 +32,54 @@ import ome.system.Principal;
 import ome.util.SqlAction;
 import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
-import omero.grid.HavenPrx;
-import omero.grid._HavenOperations;
+import omero.grid.SiloPrx;
+import omero.grid._SiloOperations;
 import Ice.Current;
 
 /**
- * An extension of {@link PublicRepositoryI} for managing a haven storage
+ * An extension of {@link PublicRepositoryI} for managing a silo storage
  * facility.
  *
  * @author Josh Moore, josh at glencoesoftware.com
  */
-public class PublicHavenRepositoryI extends PublicRepositoryI implements _HavenOperations {
+public class PublicSiloI extends PublicRepositoryI implements _SiloOperations {
 
     /**
      *
      */
     private static final long serialVersionUID = 1L;
 
-    public PublicHavenRepositoryI(File root, long repoObjectId,
+    public PublicSiloI(File root, long repoObjectId,
             Executor executor, SqlAction sql, Principal principal)
             throws Exception {
         super(root, repoObjectId, executor, sql, principal);
     }
 
-    public HavenPrx getHaven(ServiceFactoryPrx sf, Current __current)
+    public SiloPrx getSilo(ServiceFactoryPrx sf, Current __current)
             throws ServerError {
         return null;
     }
 
     //
-    // Haven methods
+    // Silo methods
     //
 
-    public long createHaven(String name, Current __current) throws ServerError {
+    public long createSilo(String name, Current __current) throws ServerError {
         // TODO Auto-generated method stub
         return 0;
     }
 
-    public void setHavenId(long id, Current __current) throws ServerError {
+    public void setSiloId(long id, Current __current) throws ServerError {
         // TODO Auto-generated method stub
 
     }
 
-    public void setHaven(String name, Current __current) throws ServerError {
+    public void setSilo(String name, Current __current) throws ServerError {
         // TODO Auto-generated method stub
 
     }
 
-    public List<String> listHavens(Current __current) throws ServerError {
+    public List<String> listSilos(Current __current) throws ServerError {
         // TODO Auto-generated method stub
         return null;
     }

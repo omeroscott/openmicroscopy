@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-   Test of the Havens service
+   Test of the Silos service
 
    Copyright 2011 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
@@ -11,7 +11,7 @@
 import path
 import unittest, os
 
-#import omero, omero.havens
+#import omero, omero.silos
 #from omero.rtypes import *
 #from integration import library as lib
 class lib(object):
@@ -29,7 +29,7 @@ class Column(object):
         self.description = description
         self.originalName = originalName
         self.originalPosition = originalPosition
-class Haven(object):
+class Silo(object):
     def __init__(self):
         self.name = "test"
         self.types = ["patient", "prescription"]
@@ -60,9 +60,9 @@ class client(object):
     def upload(*args):
         return object()
 
-haven_prx = Haven()
+silo_prx = Silo()
 
-class TestHavens(lib.ITest):
+class TestSilos(lib.ITest):
 
     def testSimple(self):
 
@@ -72,61 +72,61 @@ class TestHavens(lib.ITest):
 
             # Pure repo solution. Need to under
             repoMap = grid.repositories() # Returns "Repository" mimetype
-            repoMap = grid.repositoriesOfType("Haven") # Mimetype
+            repoMap = grid.repositoriesOfType("Silo") # Mimetype
             hic = "..." # Get the appropriate on somehow
             hic.list("/")
             hic.mkdir("/Patients")
-            hic.attachAgent("/Patients", "HavenType", {"schema":original_file_id})
+            hic.attachAgent("/Patients", "SiloType", {"schema":original_file_id})
             client.upload("/Patients", "test.csv")
 
             # Shared resource solution
-            grid.deleteHaven("test")
-            grid.createHaven("test")
-            grid.findHaven("test")
-            haven_prx = grid.getRepositoryForHaven(haven_obj)
+            grid.deleteSilo("test")
+            grid.createSilo("test")
+            grid.findSilo("test")
+            silo_prx = grid.getRepositoryForSilo(silo_obj)
 
             # Share solution
-            haven_obj = iSharePrx.creatShare("...", haven = True)
+            silo_obj = iSharePrx.creatShare("...", silo = True)
 
             # Object solution
-            haven_prx = grid.findHaven("test")
-            haven_prx = grid.openHaven(HavenI(1, False))
+            silo_prx = grid.findSilo("test")
+            silo_prx = grid.openSilo(SiloI(1, False))
 
             # Or is the repo a group, i.e. a shared pot?!?!?!
 
             # Negative tests
-            assertRaises(createHaven, "no.periods")
-            assertRaises(createHaven, "no spaces")
-            assertRaises(createHaven, "no_punctunation")
-            assertRaises(createHaven, "no-punctunation")
+            assertRaises(createSilo, "no.periods")
+            assertRaises(createSilo, "no spaces")
+            assertRaises(createSilo, "no_punctunation")
+            assertRaises(createSilo, "no-punctunation")
 
-        # Result of the above should be a single haven prx
-        haven_prx = Haven()
+        # Result of the above should be a single silo prx
+        silo_prx = Silo()
 
         # Admin
         original_file = client.upload("test.xml")
-        haven_prx.addType("test", original_file)
+        silo_prx.addType("test", original_file)
 
         original_file = client.upload("test.csv")
-        haven_prx.addData("test", original_file)
+        silo_prx.addData("test", original_file)
 
         # Audit settings
-        haven_prx.setRecordRowAccess(True)
+        silo_prx.setRecordRowAccess(True)
 
 
         # Audit information
-        logs = haven_prx.getEventLogs() # Return own ITime
+        logs = silo_prx.getEventLogs() # Return own ITime
         for log in logs:
             print log.action,
             print log.entityType, # "<TYPE>.<columnname>
             print log.entityId,   # row, -1 for no record row access
 
         # User
-        names = haven_prx.getTypes()
+        names = silo_prx.getTypes()
         for name in names:
             print name
 
-            cols = haven_prx.getColumns(name)
+            cols = silo_prx.getColumns(name)
             for col in cols:
                 print col.name,
                 print col.description,

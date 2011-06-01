@@ -17,9 +17,9 @@ import Ice.ObjectAdapter;
 
  * @since Beta4.4
  */
-public class HavenRepositoryI extends AbstractRepositoryI {
+public class SiloI extends AbstractRepositoryI {
 
-    public HavenRepositoryI(ObjectAdapter oa, Registry reg, Executor ex,
+    public SiloI(ObjectAdapter oa, Registry reg, Executor ex,
             SqlAction sql, String sessionUuid, String repoDir) {
         super(oa, reg, ex, sql, sessionUuid, repoDir);
     }
@@ -27,7 +27,7 @@ public class HavenRepositoryI extends AbstractRepositoryI {
     @Override
     protected PublicRepositoryI createPublicRepository(
             ome.model.core.OriginalFile r) throws Exception {
-        PublicHavenRepositoryI pr = new PublicHavenRepositoryI(new File(fileMaker
+        PublicSiloI pr = new PublicSiloI(new File(fileMaker
                 .getDir()), r.getId(), ex, sql, p);
         return pr;
     }
