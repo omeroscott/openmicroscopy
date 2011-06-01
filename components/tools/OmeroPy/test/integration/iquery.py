@@ -33,5 +33,18 @@ class TestQuery(lib.ITest):
             if len(as_map) > 0:
                 print "Group %s: %s" % (group.id.val, as_map)
 
+    def testGetPixelsSizes(self):
+        q = self.root.sf.getQueryService()
+        a = self.root.sf.getAdminService()
+        groups = a.lookupGroups()
+        for group in groups:
+            rtypeseqseq = q.projection("""
+            select sum(p.pixelsType.bitSize * cast(p.sizeX as long) * p.sizeY * p.sizeZ * p.sizeT * p.sizeC)
+            from Pixels p where p.details.group.id = %s
+            """ % group.id.val, None, {"omero.group":str(group.id.val)})
+            rv = unwrap(rtypeseqseq)[0]
+            if rv:
+                print "Group:%s %s" % (group.id.val, rv)
+
 if __name__ == '__main__':
     unittest.main()
