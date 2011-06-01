@@ -56,6 +56,7 @@ class HqlControl(BaseControl):
         p = ParametersI()
         p.page(args.offset, args.limit)
         rv = self.project(q, args.query, p, ice_map)
+        self.ctx.set("rv", rv)
         has_details = self.display(rv)
         if args.quiet:
             return
@@ -84,6 +85,7 @@ To quit, enter 'q' or just enter.
                 p.page(p.getOffset().val + p.getLimit().val, p.getLimit())
                 self.ctx.dbg("\nCurrent page: offset=%s, limit=%s\n" % (p.theFilter.offset.val, p.theFilter.limit.val))
                 rv = self.project(q, args.query, p, ice_map)
+                self.ctx.set("rv", rv)
                 self.display(rv)
             elif id.startswith("r"):
                 self.display(rv)

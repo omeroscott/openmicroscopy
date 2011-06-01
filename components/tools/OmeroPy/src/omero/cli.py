@@ -153,7 +153,9 @@ class Parser(ArgumentParser):
     def sub(self):
         return self.add_subparsers(title = "Subcommands", description = OMEROSUBS, metavar = OMEROSUBM)
 
-    def add(self, sub, func, help, **kwargs):
+    def add(self, sub, func, help = None, **kwargs):
+        if help is None:
+            help = func.im_func.__doc__
         parser = sub.add_parser(func.im_func.__name__, help=help, description=help)
         parser.set_defaults(func=func, **kwargs)
         return parser
@@ -425,9 +427,10 @@ class BaseControl:
     #
     # Mostly reusable code
     #
-    def __init__(self, ctx = None, dir = OMERODIR):
+    def __init__(self, ctx = None, dir = OMERODIR, name = "UNKNOWN"):
         self.dir = path(dir) # Guaranteed to be a path
         self.ctx = ctx
+        self._control_name = name
         if self.ctx is None:
             self.ctx = Context() # Prevents unncessary stop_event creation
 
@@ -601,6 +604,41 @@ class BaseControl:
                 continue
             break
         return root_pass
+
+    def _demo(self, title, method = None, *arguments):
+        """
+        Used during demos to print out statements.
+        """
+        indent = ""
+        topbot = "-"
+
+        self.ctx.out(indent + "+" + (topbot*68) + "+")
+        title = indent + "| DESCRIPTION: %-53.53s | " % title
+        self.ctx.out(title)
+        if method == self:
+            # Signifies that there are no subparsers
+            cmd = indent + "| COMMAND: omero %-51.51s | " % ("%s %s" % (self._control_name, " ".join(arguments)))
+            self.ctx.out(cmd)
+        elif method :
+            cmd = indent + "| COMMAND: omero %-51.51s | " % ("%s %s %s" % (self._control_name, method.__name__, " ".join(arguments)))
+            self.ctx.out(cmd)
+        self.ctx.out(indent + "+" + (topbot*68) + "+")
+        self.ctx.out(" ")
+
+        command = []
+        try:
+            if method == self:
+                command = [self._control_name] + list(arguments)
+                self.ctx.invoke(command)
+            elif method:
+                command = [self._control_name, method.__name__] + list(arguments)
+                self.ctx.invoke(command)
+        except exceptions.Exception, e:
+            import traceback
+            self.ctx.out("\nEXECUTION FAILED: %s" % e)
+            self.ctx.dbg(traceback.format_exc())
+        self.ctx.out("\n")
+        return command
 
     ###############################################
     #
@@ -868,7 +906,7 @@ class CLI(cmd.Cmd, Context):
 
         try:
             if len(debug_opts) == 0:
-                args.func(args)
+                return args.func(args)
             elif len(debug_opts) > 1:
                 self.die(9, "Conflicting debug options: %s" % ", ".join(debug_opts))
             elif "t" in debug_opts or "trace" in debug_opts:
@@ -1068,7 +1106,7 @@ class CLI(cmd.Cmd, Context):
             if isinstance(control, tuple):
                 Control = control[0]
                 help = control[1]
-                control = Control(ctx = self, dir = self.dir)
+                control = Control(ctx = self, dir = self.dir, name = name)
                 self.controls[name] = control
                 setattr(self, "complete_%s" % name, control._complete)
                 parser = self.subparsers.add_parser(name, help=help)

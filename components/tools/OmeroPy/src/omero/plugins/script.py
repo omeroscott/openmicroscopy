@@ -221,6 +221,9 @@ class ScriptControl(BaseControl):
 
 
     def demo(self, args):
+
+        client = self.ctx.conn(args)
+
         from omero.util.temp_files import create_path
         t = create_path("Demo_Script", ".py")
 
@@ -236,47 +239,27 @@ class ScriptControl(BaseControl):
         self.ctx.out("\nExample script writing session")
         self.ctx.out("="*80)
 
-        def msg(title, method = None, *arguments):
-            self.ctx.out("\n")
-            self.ctx.out("\t+" + ("-"*68) + "+")
-            title = "\t| %-66.66s | " % title
-            self.ctx.out(title)
-            if method:
-                cmd = "%s %s" % (method.__name__, " ".join(arguments))
-                cmd = "\t| COMMAND: bin/omero script %-40.40s | " % cmd
-                self.ctx.out(cmd)
-            self.ctx.out("\t+" + ("-"*68) + "+")
-            self.ctx.out(" ")
-            if method:
-                try:
-                    self.ctx.invoke(['script', method.__name__] + list(arguments))
-                except exceptions.Exception, e:
-                    import traceback
-                    self.ctx.out("\nEXECUTION FAILED: %s" % e)
-                    self.ctx.dbg(traceback.format_exc())
-
-        client = self.ctx.conn(args)
         admin = client.sf.getAdminService()
         current_user = self.ctx._event_context.userId
         query = "select o from OriginalFile o where o.sha1 = '%s' and o.details.owner.id = %s" % (sha1, current_user)
         files = client.sf.getQueryService().findAllByQuery(query, None)
         if len(files) == 0:
-            msg("Saving demo script to %s" % t)
+            self._demo("Saving demo script to %s" % t)
             t.write_text(DEMO_SCRIPT)
 
-            msg("Uploading script", self.upload, str(t))
+            self._demo("Uploading script", self.upload, str(t))
             id = self.ctx.get("script.file.id")
         else:
             id = files[0].id.val
-            msg("Reusing demo script %s" % id)
+            self._demo("Reusing demo script %s" % id)
 
-        msg("Listing available scripts for user", self.list, "user")
-        msg("Printing script content for file %s" % id, self.cat, str(id))
-        msg("Serving file %s in background" % id, self.serve, "user", "--background")
-        msg("Printing script params for file %s" % id, self.params, "file=%s" % id)
-        msg("Launching script with parameters: a=bad-string (fails)", self.launch, "file=%s" % id, "a=bad-string")
-        msg("Launching script with parameters: a=bad-string opt=6 (fails)", self.launch, "file=%s" % id, "a=bad-string", "opt=6")
-        msg("Launching script with parameters: a=foo opt=1 (passes)", self.launch, "file=%s" % id, "a=foo", "opt=1")
+        self._demo("Listing available scripts for user", self.list, "user")
+        self._demo("Printing script content for file %s" % id, self.cat, str(id))
+        self._demo("Serving file %s in background" % id, self.serve, "user", "--background")
+        self._demo("Printing script params for file %s" % id, self.params, "file=%s" % id)
+        self._demo("Launching script with parameters: a=bad-string (fails)", self.launch, "file=%s" % id, "a=bad-string")
+        self._demo("Launching script with parameters: a=bad-string opt=6 (fails)", self.launch, "file=%s" % id, "a=bad-string", "opt=6")
+        self._demo("Launching script with parameters: a=foo opt=1 (passes)", self.launch, "file=%s" % id, "a=foo", "opt=1")
         try:
             for p in list(getattr(self, "_processors", [])):
                 p.cleanup()
