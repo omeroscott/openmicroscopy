@@ -41,8 +41,7 @@ from omero_ext.argparse import SUPPRESS
 
 from omero.util.concurrency import get_event
 from omero.util.sessions import SessionsStore
-
-import omero
+from omero.util import get_user_dir
 
 #
 # Static setup
@@ -746,6 +745,25 @@ class CLI(cmd.Cmd, Context):
         self._client = None                 #: Single client for all activities
         self._plugin_paths = [OMEROCLI / "plugins"] #: Paths to be loaded; initially official plugins
         self._pluginsLoaded = CLI.PluginsLoaded()
+
+        self.config = {
+            "sessions.log": "true"
+        }
+
+        dir = get_user_dir()
+        ini = path(dir) / "omero" / "cli.ini"
+        if ini.exists():
+            self.dbg("Local setting: file %s" % ini)
+            import ConfigParser
+
+            cp = ConfigParser.ConfigParser()
+            cp.read(str(ini))
+            for sec in cp.sections():
+                name = sec.lower()
+                for opt in cp.options(sec):
+                    val = cp.get(sec, opt).strip()
+                    self.config[name + "." + opt.lower()] = val
+                    self.dbg("Local Setting: %s.%s=%s" % (name, opt.lower(), val))
 
     def assertRC(self):
         if self.rv != 0:

@@ -115,6 +115,18 @@ class SessionsControl(BaseControl):
     def help(self, args):
         self.ctx.err(LONGHELP % {"prog":args.prog})
 
+    def _out(self, str):
+        if self.ctx.config.get("sessions.log", "true").lower() == "true":
+            self.ctx.out("%s" % str)
+        else:
+            self.ctx.dbg("Silenced: %s" % str)
+
+    def _err(self, str):
+        if self.ctx.config.get("sessions.log", "true").lower() == "true":
+            self.ctx.err("%s" % str)
+        else:
+            self.ctx.dbg("Silenced: %s" % str)
+
     def login(self, args):
         """
         Goals:
@@ -198,9 +210,9 @@ class SessionsControl(BaseControl):
                             else:
                                 rv = store.attach(*previous)
                                 return self.handle(rv, "Using")
-                        self.ctx.out("Previously logged in to %s:%s as %s" % (previous[0], previous_port, previous[1]))
+                        self._out("Previously logged in to %s:%s as %s" % (previous[0], previous_port, previous[1]))
                     except exceptions.Exception, e:
-                        self.ctx.out("Previous session expired for %s on %s:%s" % (previous[1], previous[0], previous_port))
+                        self._out("Previous session expired for %s on %s:%s" % (previous[1], previous[0], previous_port))
                         self.ctx.dbg("Exception on attach: %s" % traceback.format_exc(e))
                         try:
                             store.remove(*previous)
@@ -323,7 +335,7 @@ class SessionsControl(BaseControl):
 
         msg += (" Current group: %s" % ec.groupName)
 
-        self.ctx.err(msg)
+        self._err(msg)
 
     def logout(self, args):
         store = self.store(args)
