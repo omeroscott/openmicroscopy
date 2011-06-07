@@ -38,6 +38,24 @@ LOAD_TABLES = ("""    select l.child.file.id, l.child.file.path, l.child.file.na
 SILO_FROM_TABLE = ("""select l.parent.id from OriginalFileAnnotationLink l where l.child.file.id = %s""",)
 
 
+class BaseParser(object):
+
+    def __init__(self, parser):
+        parts = parser.split(".")
+        mod = __import__(".".join(parts[:-1]))
+        for x in parts[1:-1]:
+            mod = getattr(mod, x)
+        self.kls = getattr(mod, parts[-1])
+
+
+class ParserDefiner(BaseParser):
+
+    def __call__(self, args):
+        if len(args) != 1:
+            raise Exception("Expecting exactly one file arg. Not %s" % " ".join(args))
+        return self.kls(args[0])
+
+
 class SiloControl(BaseControl):
 
     def _configure(self, parser):
@@ -52,6 +70,11 @@ class SiloControl(BaseControl):
         define.add_argument("id", help="id of the selected silo")
         define.add_argument("name", help="name of the new table")
         define.add_argument("arg", nargs="*", help="column descriptors of the form 'type:name:param=value'")
+        define.add_argument("--parser", type=ParserDefiner, help="parser class which should be used on all args")
+
+        load = parser.add(sub, self.load)
+        load.add_argument("id", help="id of the selected table")
+        load.add_argument("arg", nargs="*", help="data files'")
 
         auditlog = parser.add(sub, self.auditlog)
         auditlog.add_argument("id", help="id of the selected silo")
@@ -63,7 +86,10 @@ class SiloControl(BaseControl):
 
         tail = parser.add(sub, self.tail)
         tail.add_argument("id", type=long, help="id of the selected table")
-        tail.add_argument("--count", type=int, default=25, help="number of rows")
+
+        for x in (auditlog, tables, tail):
+            x.add_argument("--limit", type=int, default=25, help="limit the number of return rows")
+            x.add_argument("--offset", type=int, default=0, help="number of rows to skip")
 
     def demo(self, args):
         """Run a full, example silo workflow
@@ -85,9 +111,6 @@ add random data, and then display that data via "tail".
         commands.append(self._demo("Create new silo", self.create, "Demo"))
         silo_id = self.ctx.get("rv")
         commands.append(self._demo("Re-list silos", self.list))
-
-        commands.append(self._demo("Add audit log to silo %s" % silo_id, self.define, str(silo_id),\
-            "AuditLog", "Long:user_id", "Long:timestamp", "String:resource:size=100", "String:action:size=100", "String:message:size=100"))
 
         commands.append(self._demo("Add user table to silo %s" % silo_id, self.define, str(silo_id),\
             "TypeA", "String:personal_id:size=12", "Long:measurement_1", "Long:measurement_2"))
@@ -141,6 +164,14 @@ b = 2
         ofile = client.upload(filename = file.abspath(), path = "/Silos", name = args.name, type = "OMERO.silo")
         self.ctx.out("Saved %s as silo %s" % (file, ofile.id.val))
         self.ctx.set("rv", ofile.id.val)
+
+        new_args = args.__class__()
+        new_args.id = ofile.id.val
+        new_args.name = "AuditLog"
+        new_args.arg = ["Long:user_id", "Long:timestamp", "String:resource:size=100", "String:action:size=100", "String:message:size=100"]
+        new_args.parser = None
+        self.define(new_args)
+
         return ofile.id.val
 
     def define(self, args):
@@ -160,7 +191,7 @@ b = 2
 
         try:
             of = nt.getOriginalFile()
-            self.ctx.out("Created table %s" % of.id.val)
+            self.ctx.out("Created table %s ('%s')" % (of.id.val, args.name))
             self.ctx.set("rv", of)
 
             fa = FileAnnotationI()
@@ -171,52 +202,82 @@ b = 2
             fl.parent = OriginalFileI(args.id, False)
             fl = us.saveAndReturnObject(fl)
 
-            cs = []
-            for arg in args.arg:
-                parts = arg.split(":")
-                type = parts[0]
-                cfg = col_types[type]
+            if args.parser:
+                args.parser(args.arg).initialize(nt)
+            else:
+                cs = []
+                for arg in args.arg:
+                    parts = arg.split(":")
+                    type = parts[0]
+                    cfg = col_types[type]
 
-                column = cfg[0]()
-                mappers = cfg[1]
+                    column = cfg[0]()
+                    mappers = cfg[1]
 
-                column.name = parts[1]
+                    column.name = parts[1]
 
-                params = parts[2:]
-                for idx, param in enumerate(params):
-                    parts = param.split("=", 1)
-                    if len(parts) == 1:
-                        parts.append("")
-                    param = parts[0]
-                    value = parts[1]
-                    if param in mappers:
-                        value = mappers[param](value)
-                    setattr(column, param, value)
+                    params = parts[2:]
+                    for idx, param in enumerate(params):
+                        parts = param.split("=", 1)
+                        if len(parts) == 1:
+                            parts.append("")
+                        param = parts[0]
+                        value = parts[1]
+                        if param in mappers:
+                            value = mappers[param](value)
+                        setattr(column, param, value)
 
-                cs.append(column)
+                    cs.append(column)
 
-            nt.initialize(cs)
+                nt.initialize(cs)
+
             return of
         finally:
             nt.close()
 
+    def load(self, args):
+        """Load data into a table
+        """
+        from matplotlib.mlab import csv2rec
+        client = self.ctx.conn(args)
+        silo_id = self._silo_id(args.id)
+        log = self._auditlog(silo_id)
+        try:
+            sink = self._open(args.id)
+            try:
+                for arg in args.arg:
+                    cols = sink.getHeaders() # Fresh each time
+                    records = csv2rec(arg, delimiter="|") # TODO: configuration should come from file
+                    for rec in records:
+                        for idx, col in enumerate(cols):
+                            col.values.append(str(rec[idx]))
+                    sink.addData(cols)
+            finally:
+                sink.close()
+        finally:
+            log.close()
+
+
     def auditlog(self, args):
         """Display audit log
         """
+        client = self.ctx.conn(args)
         table = self._auditlog(args.id)
-        data = self._tail(table, table, 10)
+        data = self._tail(table, table, args.offset, args.limit)
         if data is None:
             self.ctx.die(101, "No audit logs")
         self.ctx.out(self._stringify(data))
 
     def list(self, args):
         """List available silos"""
+        client = self.ctx.conn(args)
         rv = self._query(LOAD_SILOS[0], 0, 10)
         self.ctx.out(self._stringify(rv, LOAD_SILOS[1]))
 
     def tables(self, args):
         """List tables associated with this silo"""
-        rv = self._query(LOAD_TABLES[0] % args.id, 0, 10)
+        client = self.ctx.conn(args)
+        rv = self._query(LOAD_TABLES[0] % args.id, args.offset, args.limit)
         self.ctx.out(self._stringify(rv, LOAD_TABLES[1]))
 
     def tail(self, args):
@@ -228,7 +289,7 @@ b = 2
         try:
             table = self._open(args.id)
             try:
-                data = self._tail(audit_log, table, args.count)
+                data = self._tail(audit_log, table, args.offset, args.limit)
                 if data is None:
                     self.ctx.die(101, "No data")
                 self.ctx.out(self._stringify(data))
@@ -286,31 +347,36 @@ b = 2
             self.ctx.die(103, "Invalid number of silos for table %s: %s" % (table_id, len(rv)))
         return rv[0][0]
 
-    def _tail(self, auditlog, table, count):
+    def _tail(self, auditlog, table, offset, limit):
         """
-        Return 'count' vailues from the end of table.
+        Return 'limit' vailues from the end of table
+        but skip up by 'offset'
+
         If no fewer rows are present, then all rows
         are returned. If no rows are present, None is
         returned.
         """
+        if offset != 0:
+            self.ctx.die(111, "Non-zero offset currently unsupported")
+
         try:
             resource = "Table:%s" % table.getOriginalFile().id.val
             row_count = table.getNumberOfRows()
             if row_count == 0:
                 return None
 
-            if count > row_count:
-                count = row_count
+            if limit > row_count:
+                limit = row_count
 
             rows = []
-            for x in range(row_count - count, row_count, 1):
+            for x in range(row_count - limit, row_count, 1):
                 rows.append(x)
 
             data = table.readCoordinates(rows)
             self.ctx.set("rv", data)
-            self._log(auditlog, resource, "READ", "%s rows" % count)
+            self._log(auditlog, resource, "READ", "%s rows" % limit)
         except:
-            self._log(auditlog, resource, "FAILED_READ", "%s rows" % count)
+            self._log(auditlog, resource, "FAILED_READ", "%s rows" % limit)
             raise
 
         return data
