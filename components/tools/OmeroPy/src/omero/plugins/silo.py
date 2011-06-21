@@ -51,9 +51,27 @@ class BaseParser(object):
 class ParserDefiner(BaseParser):
 
     def __call__(self, args):
-        if len(args) != 1:
-            raise Exception("Expecting exactly one file arg. Not %s" % " ".join(args))
-        return self.kls(args[0])
+        xml = []
+        csv = []
+        for arg in args:
+            if arg.endswith("xml"):
+                xml.append(arg)
+            else:
+                csv.append(arg)
+
+        if len(xml) != 1:
+            raise Exception("Expecting exactly one XML file arg. Not %s" % " ".join(args))
+
+        instance = self.kls(xml[0])
+        return (instance, csv)
+
+
+class SiloLoader(object):
+    def __init__(self, ctx):
+        self.ctx = ctx
+    def __repr__(self):
+        val = self.ctx.read_config("silo", "default_id")
+        return "%s" % val
 
 
 class SiloControl(BaseControl):
@@ -63,29 +81,29 @@ class SiloControl(BaseControl):
 
         demo = parser.add(sub, self.demo)
 
+        list = parser.add(sub, self.list)
+
+        default = parser.add(sub, self.default)
+        default.add_argument("silo_id", nargs="?", help="value to set default; otherwise prints current")
+
         create = parser.add(sub, self.create)
         create.add_argument("name", help="name of the silo (OriginalFile.name)")
 
         define = parser.add(sub, self.define)
-        define.add_argument("id", help="id of the selected silo")
+        auditlog = parser.add(sub, self.auditlog)
+        tables = parser.add(sub, self.tables)
+        for x in (define, auditlog, tables):
+            x.add_argument("--id", type=long, default=SiloLoader(self.ctx), help="id of the selected silo")
         define.add_argument("name", help="name of the new table")
         define.add_argument("arg", nargs="*", help="column descriptors of the form 'type:name:param=value'")
         define.add_argument("--parser", type=ParserDefiner, help="parser class which should be used on all args")
 
         load = parser.add(sub, self.load)
-        load.add_argument("id", help="id of the selected table")
-        load.add_argument("arg", nargs="*", help="data files'")
-
-        auditlog = parser.add(sub, self.auditlog)
-        auditlog.add_argument("id", help="id of the selected silo")
-
-        list = parser.add(sub, self.list)
-
-        tables = parser.add(sub, self.tables)
-        tables.add_argument("id", help="id of the selected silo")
-
+        describe = parser.add(sub, self.describe)
         tail = parser.add(sub, self.tail)
-        tail.add_argument("id", type=long, help="id of the selected table")
+        for x in (describe, tail):
+            x.add_argument("id", type=long, help="id of the selected table")
+        load.add_argument("arg", nargs="*", help="data files'")
 
         for x in (auditlog, tables, tail):
             x.add_argument("--limit", type=int, default=25, help="limit the number of return rows")
@@ -147,6 +165,16 @@ add random data, and then display that data via "tail".
             if command:
                 print "omero", " ".join(command)
 
+    def default(self, args):
+        """read and write the current default silo id
+        """
+        if args.silo_id is not None:
+            self.ctx.write_config("silo", "default_id", args.silo_id)
+        else:
+            val = self.ctx.read_config("silo", "default_id")
+            if val:
+                self.ctx.out(val)
+
     def create(self, args):
         """Initializes a fresh silo"""
 
@@ -199,11 +227,17 @@ b = 2
             fa.file = of
             fl = OriginalFileAnnotationLinkI()
             fl.child = fa
-            fl.parent = OriginalFileI(args.id, False)
+            fl.parent = OriginalFileI(str(args.id), False)
             fl = us.saveAndReturnObject(fl)
 
             if args.parser:
-                args.parser(args.arg).initialize(nt)
+                try:
+                    parser, csv = args.parser(args.arg)
+                    parser.initialize(nt, data=csv)
+                except Exception, e:
+                    import traceback
+                    self.ctx.dbg(traceback.format_exc(e))
+                    self.ctx.die(33, "Parser error: %s" % e)
             else:
                 cs = []
                 for arg in args.arg:
@@ -250,7 +284,7 @@ b = 2
                     records = csv2rec(arg, delimiter="|") # TODO: configuration should come from file
                     for rec in records:
                         for idx, col in enumerate(cols):
-                            col.values.append(str(rec[idx]))
+                            col.values.append(rec[idx])
                     sink.addData(cols)
             finally:
                 sink.close()
@@ -279,6 +313,21 @@ b = 2
         client = self.ctx.conn(args)
         rv = self._query(LOAD_TABLES[0] % args.id, args.offset, args.limit)
         self.ctx.out(self._stringify(rv, LOAD_TABLES[1]))
+
+    def describe(self, args):
+        """Describe the contents of a table"""
+
+        client = self.ctx.conn(args)
+        silo_id = self._silo_id(args.id)
+        audit_log = self._auditlog(silo_id)
+        try:
+            table = self._open(args.id)
+            try:
+                print table.getHeaders()
+            finally:
+                table.close()
+        finally:
+            audit_log.close()
 
     def tail(self, args):
         """List the last several entries of the table"""

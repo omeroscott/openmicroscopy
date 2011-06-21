@@ -50,7 +50,7 @@ class SchemaXml(object):
 
     """
     attributes = ("filename", "datecreated", "linecount", "filesize",\
-            "separator", "dateformat", "descriptor", "comment")
+            ("separator", "|"), "dateformat", "descriptor", "comment")
 
     def __init__(self, file = None, **kwargs):
         self.logger = logging.getLogger(self.__class__.__name__)    #: Logs to the class name
@@ -60,18 +60,98 @@ class SchemaXml(object):
             self.XML = XML(self.text)
             self.summary = self.XML.find("summary")
             for x in SchemaXml.attributes:
-                setattr(self, x, self.summary.find(x).text)
+                default = None
+                if isinstance(x, tuple):
+                    x, default = x # Unwrap defaults
+                val = self.summary.find(x).text
+                if default and not val:
+                    val = default
+                setattr(self, x, val)
             self.columns = [Column(col) for col in self.XML.find("columns").findall("./column")]
         for k, v in kwargs.iteritems():
             setattr(self, k, v)
 
-    def initialize(self, table):
-        cs = []
-        for col in self.columns:
-            print col
-            cs.append(StringColumn(\
-                name=col.name, description=self.descriptor, size=100, values=[]))
+    def map_dtype(self, dtype):
+        kind = dtype.kind
+        if kind == "S":
+            return StringColumn()
+        elif kind == "O":
+            # Assuming date
+            return LongColumn()
+        elif kind == "i":
+            return LongColumn()
+        else:
+            raise Exception(kind)
+
+    def map_schema(self, type):
+        #
+        # varchar, char, date, int
+        #
+        raise Exception(type)
+
+    def check_dtype(self, col, dtype):
+        assert isinstance(self.map_dtype(dtype), col.__class__)
+
+    def check_schema(self, col, type):
+        if not type:
+            return
+        elif type in ("varchar", "char"):
+            assert isinstance(col, StringColumn)
+        elif type == "date":
+            assert isinstance(col, LongColumn)
+        elif type == "int":
+            assert isinstance(col, LongColumn)
+        else:
+            raise Exception(type)
+
+    def initialize(self, table, data = None):
+        from matplotlib.mlab import csv2rec
+        cs = None
+        if data:
+            for csv in data:
+                records = csv2rec(csv, delimiter=self.separator)
+                types = records.dtype
+                if cs is None:
+                    cs = [self.map_dtype(x) for x in [types[i] for i in range(len(types))]]
+                else:
+                    if len(types) != len(cs):
+                        raise Exception("len(types)==%1 <> len(columns)==%1" % (len(types), len(cs)))
+                    for idx, type in enumerate(types):
+                        self.check_dtype(cs[idx], type)
+
+        if cs is None:
+            cs = [self.map_schema(col.type) for col in columns]
+        else:
+            for idx, col in enumerate(self.columns):
+                self.check_schema(cs[idx], col.type)
+
+        # Handle name, etc
+        for idx, col in enumerate(self.columns):
+            c = cs[idx]
+            c.name = col.name
+            c.description = col.descriptor
+            if isinstance(c, StringColumn):
+                c.size = 100
+
         table.initialize(cs)
+
+        import time
+        import datetime
+        def epoch(dt):
+            return long(time.mktime(dt.timetuple())*1000)
+
+        if data:
+            for csv in data:
+                cs = table.getHeaders()
+                records = csv2rec(csv, delimiter=self.separator)
+                dtype = records.dtype
+                for x in range(len(dtype)):
+                    if isinstance(records[dtype.names[x]][0], datetime.date): # FIXME
+                        cs[x].values = [epoch(dt) for dt in records[dtype.names[x]]]
+                    else:
+                        cs[x].values = records[dtype.names[x]].tolist()
+                table.addData(cs)
+
         return cs
 
     def __str__(self):

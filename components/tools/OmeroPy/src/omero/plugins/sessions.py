@@ -116,14 +116,14 @@ class SessionsControl(BaseControl):
         self.ctx.err(LONGHELP % {"prog":args.prog})
 
     def _out(self, str):
-        if self.ctx.config.get("sessions.log", "true").lower() == "true":
+        if self.ctx.read_config("sessions", "log", "true").lower() == "true":
             self.ctx.out("%s" % str)
         else:
             self.ctx.dbg("Silenced: %s" % str)
 
     def _err(self, str):
         ## TODO: add step to _configuration to list all cli.ini properties.
-        if self.ctx.config.get("sessions.log", "true").lower() == "true":
+        if self.ctx.read_config("sessions", "log", "true").lower() == "true":
             self.ctx.err("%s" % str)
         else:
             self.ctx.dbg("Silenced: %s" % str)

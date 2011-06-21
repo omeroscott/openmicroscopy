@@ -746,24 +746,48 @@ class CLI(cmd.Cmd, Context):
         self._plugin_paths = [OMEROCLI / "plugins"] #: Paths to be loaded; initially official plugins
         self._pluginsLoaded = CLI.PluginsLoaded()
 
-        self.config = {
-            "sessions.log": "true"
-        }
+    def default_config(self):
+        from omero_ext.configobj import ConfigObj
+        default_config = ConfigObj()
+        default_config["sessions"] = {"log": "true"}
+        return default_config
+
+    def read_config(self, section, key, default = None):
+        from omero_ext.configobj import ConfigObj
+        default_config = self.default_config()
 
         dir = get_user_dir()
-        ini = path(dir) / "omero" / "cli.ini"
-        if ini.exists():
-            self.dbg("Local setting: file %s" % ini)
-            import ConfigParser
+        if dir != None:
+            ini = path(dir) / "omero" / "cli.ini"
 
-            cp = ConfigParser.ConfigParser()
-            cp.read(str(ini))
-            for sec in cp.sections():
-                name = sec.lower()
-                for opt in cp.options(sec):
-                    val = cp.get(sec, opt).strip()
-                    self.config[name + "." + opt.lower()] = val
-                    self.dbg("Local Setting: %s.%s=%s" % (name, opt.lower(), val))
+        if ini is not None and ini.exists():
+            self.dbg("Local settings: %s..." % ini)
+            ini_config = ConfigObj(ini)
+            default_config.merge(ini_config)
+
+        try:
+            val = default_config[section][key]
+            self.dbg("Read config: %s.%s=%s" % (section, key, val))
+        except KeyError:
+            val = default
+            self.dbg("Default config: %s.%s=%s" % (section, key, default))
+        return val
+
+    def write_config(self, section, key, value):
+
+        dir = get_user_dir()
+        if dir == None:
+            return # Early exit!
+
+        ini = path(dir) / "omero" / "cli.ini"
+        from omero_ext.configobj import ConfigObj
+        co = ConfigObj(infile = ini, create_empty = True)
+        try:
+            co[section][key] = value
+        except KeyError:
+            co[section] = {key: value}
+        co.write()
+        self.dbg("Wrote config: %s.%s=%s" % (section, key, value))
 
     def assertRC(self):
         if self.rv != 0:
