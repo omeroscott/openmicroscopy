@@ -11,13 +11,7 @@ from exceptions import Exception
 
 from omero.cli import BaseControl
 from omero.cli import CLI
-from omero.cli import VERSION
 
-from omero_ext.argparse import FileType
-
-from path import path
-
-import omero.java
 import time
 
 HELP="""Silo"""
@@ -35,7 +29,7 @@ LOAD_TABLES = ("""    select l.child.file.id, l.child.file.path, l.child.file.na
                         from OriginalFileAnnotationLink l
                        where l.parent.id = %s and l.child.file is not null""", ("Id", "Path", "Name", "Size"))
 
-SILO_FROM_TABLE = ("""select l.parent.id from OriginalFileAnnotationLink l where l.child.file.id = %s""",)
+SILO_FROM_TABLE = ("""select l.parent.id from OriginalFileAnnotationLink l where l.child.file.id = %s""", )
 
 
 class BaseParser(object):
@@ -67,8 +61,10 @@ class ParserDefiner(BaseParser):
 
 
 class SiloLoader(object):
+
     def __init__(self, ctx):
         self.ctx = ctx
+
     def __repr__(self):
         val = self.ctx.read_config("silo", "default_id")
         return "%s" % val
@@ -79,9 +75,8 @@ class SiloControl(BaseControl):
     def _configure(self, parser):
         sub = parser.sub()
 
-        demo = parser.add(sub, self.demo)
-
-        list = parser.add(sub, self.list)
+        parser.add(sub, self.demo)
+        parser.add(sub, self.list)
 
         default = parser.add(sub, self.default)
         default.add_argument("silo_id", nargs="?", help="value to set default; otherwise prints current")
@@ -110,16 +105,13 @@ class SiloControl(BaseControl):
             x.add_argument("--offset", type=int, default=0, help="number of rows to skip")
 
     def demo(self, args):
-        """Run a full, example silo workflow
-
-The demo will create a silo named "Demo", add tables to it,
-add random data, and then display that data via "tail".
         """
-        from omero.rtypes import rstring, unwrap
+        Run a full, example silo workflow
 
+        The demo will create a silo named "Demo", add tables to it,
+        add random data, and then display that data via "tail".
+        """
         client = self.ctx.conn(args)
-        us = client.sf.getUpdateService()
-        qs = client.sf.getQueryService()
 
         self.ctx.out("\nExample silo session")
         self.ctx.out("="*80)
@@ -178,7 +170,6 @@ add random data, and then display that data via "tail".
     def create(self, args):
         """Initializes a fresh silo"""
 
-        import omero
         from omero.rtypes import rstring as _
         from omero.util.temp_files import create_path
 
@@ -196,7 +187,8 @@ b = 2
         new_args = args.__class__()
         new_args.id = ofile.id.val
         new_args.name = "AuditLog"
-        new_args.arg = ["Long:user_id", "Long:timestamp", "String:resource:size=100", "String:action:size=100", "String:message:size=100"]
+        new_args.arg = ["Long:user_id", "Long:timestamp",\
+                "String:resource:size=100", "String:action:size=100", "String:message:size=100"]
         new_args.parser = None
         self.define(new_args)
 
@@ -207,7 +199,7 @@ b = 2
 
         from omero.grid import StringColumn, LongColumn
         from omero.model import OriginalFileI, FileAnnotationI, OriginalFileAnnotationLinkI
-        from omero.rtypes import rstring, unwrap
+        from omero.rtypes import rstring
 
         col_types = {"String": (StringColumn, {"size": int}), "Long": (LongColumn, dict())}
 
@@ -273,7 +265,7 @@ b = 2
         """Load data into a table
         """
         from matplotlib.mlab import csv2rec
-        client = self.ctx.conn(args)
+        self.ctx.conn(args)
         silo_id = self._silo_id(args.id)
         log = self._auditlog(silo_id)
         try:
@@ -291,11 +283,10 @@ b = 2
         finally:
             log.close()
 
-
     def auditlog(self, args):
         """Display audit log
         """
-        client = self.ctx.conn(args)
+        self.ctx.conn(args)
         table = self._auditlog(args.id)
         data = self._tail(table, table, args.offset, args.limit)
         if data is None:
@@ -304,20 +295,20 @@ b = 2
 
     def list(self, args):
         """List available silos"""
-        client = self.ctx.conn(args)
+        self.ctx.conn(args)
         rv = self._query(LOAD_SILOS[0], 0, 10)
         self.ctx.out(self._stringify(rv, LOAD_SILOS[1]))
 
     def tables(self, args):
         """List tables associated with this silo"""
-        client = self.ctx.conn(args)
+        self.ctx.conn(args)
         rv = self._query(LOAD_TABLES[0] % args.id, args.offset, args.limit)
         self.ctx.out(self._stringify(rv, LOAD_TABLES[1]))
 
     def describe(self, args):
         """Describe the contents of a table"""
 
-        client = self.ctx.conn(args)
+        self.ctx.conn(args)
         silo_id = self._silo_id(args.id)
         audit_log = self._auditlog(silo_id)
         try:
@@ -332,7 +323,7 @@ b = 2
     def tail(self, args):
         """List the last several entries of the table"""
 
-        client = self.ctx.conn(args)
+        self.ctx.conn(args)
         silo_id = self._silo_id(args.id)
         audit_log = self._auditlog(silo_id)
         try:
