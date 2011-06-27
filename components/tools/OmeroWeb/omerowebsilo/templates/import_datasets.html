@@ -1,0 +1,41 @@
+<html>
+<head>
+
+	<link rel="stylesheet" type="text/css" href="/media/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="/media/css/tablecloth.css" media="screen" />
+
+	<!--<script type="text/javascript" src="/media/javascript/tablecloth.js"></script>-->
+
+	<title>OMERO/HIC Demo</title>
+</head>
+<body>
+	<div id="header-wrap">
+	<div id="django-header">
+	  <h1 id="django-logo">OMERO/HIC</h1>
+	  <ul id="django-nav-global">
+	    <li><a href="../datasets/">Datasets</a></li>
+	    <li><a href="">Query</a></li>
+	    <li id="django-active-nav"><a href="">Import</a></li>
+	    <li><a href="">Export</a></li>
+	    <li><a href="">Jobs</a></li>
+	    <li><a href="">Auditing</a></li>
+	    <li><a href="">Admin</a></li>
+	    <li><a href="">Help</a></li>
+	  </ul>
+	</div></div>
+   
+   <div id="container">
+	
+	<h2>Import Dataset</h2>
+	<p>You are about to import dataset ID #{{ datasetid }}</p>
+	
+	<form action="." method="post"><!--{% csrf_token %}-->
+	<input type="text" name="id" value ="{{ datasetid }}">
+	
+	<input type="submit" value="Import" />
+</form>
+
+
+</div>
+</body>
+</html>

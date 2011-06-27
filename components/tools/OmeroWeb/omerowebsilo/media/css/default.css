@@ -1,0 +1,75 @@
+body
+{
+  font-family: arial, helvetica, sans-serif;
+  font-size:   13px;
+  line-height: 18px;
+  color: #666666;
+  margin:0;
+  padding:0;
+}
+
+h1 { font-size: 200%; letter-spacing: -2px; margin-bottom: 20px; }
+h2 { font-size: 180%; letter-spacing: -1px; margin-bottom: 20px; }
+h3 { font-size: 150%; letter-spacing: -1px; margin-bottom: 20px; }
+h4 { font-size: 120%; letter-spacing: -1px; margin-bottom: 20px; font-weight:bold;}
+
+a
+{ 
+  outline:none;
+  color: #B9D420;
+  text-decoration: none;
+}
+
+a:visited
+{ 
+	color: #B9D420; 
+	text-decoration: none;
+}
+	
+a:hover 
+{ 
+  color: #009900;
+  border-bottom: 1px solid; 
+  text-decoration: none;
+}
+
+strong	{ font-weight:bold; }
+
+em 		{ font-style: italic;	}
+
+p
+{
+	margin: 0.5em 0;
+	padding-bottom: 0.5em;
+}
+
+/* Header Panel */
+#django-header { position:relative; height:6.5em; background:#AAAAAA; }
+#django-header h1#django-logo { font-size: 350%; margin:0; /*width:111px; height:41px;*/ position:absolute; bottom:30px; left:25px; }
+
+/* Navigation Bar */
+#django-nav-global { position:absolute; margin:0; bottom:0; right:0; font-family:"Trebuchet MS",sans-serif; white-space:nowrap; text-decoration: none;}
+#django-nav-global li { display:block; float:left; list-style-type:none; margin:0; padding:0; text-decoration: none;}
+#django-nav-global a { display:block; float:left; padding:5em 16px 10px 16px; background:#AAAAAA; text-decoration: none;}
+#django-nav-global a:hover { color:white; background:#F47C20; text-decoration: none;}
+#django-active-nav a { color:#F47C20; background:#AAAAAA; text-decoration: none;}
+#metanav li.active a { text-decoration: underline!important; }
+
+#header-wrap
+{
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 90px;
+	/*background: url(../images/header-bg.png) repeat-x left bottom;*/
+}
+
+#container
+{
+	width: 940px;
+	margin: 0 auto;
+/*	font-size: 1.4em;*/
+	overflow: auto;
+	padding-top: 100px;
+}
