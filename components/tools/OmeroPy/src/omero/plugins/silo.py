@@ -70,9 +70,12 @@ class SiloApi(object):
     These methods will eventually be pushed server side.
     """
 
-    def __init__(self, client, event_context):
+    def __init__(self, client, event_context = None):
         self.client = client
         self.event_context = event_context
+        if not self.event_context:
+            self.event_context = \
+            self.client.sf.getAdminService().getEventContext()
 
     def auditlog(self, silo_id, offset, limit):
         """
@@ -627,7 +630,8 @@ class SiloControl(BaseControl):
 try:
     register("silo", SiloControl, HELP)
 except NameError:
-    import sys
-    cli = CLI()
-    cli.register("silo", SiloControl, HELP)
-    cli.invoke(sys.argv[1:])
+    if __name__ == "__main__":
+        import sys
+        cli = CLI()
+        cli.register("silo", SiloControl, HELP)
+        cli.invoke(sys.argv[1:])
