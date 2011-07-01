@@ -302,6 +302,7 @@ INSTALLED_APPS = (
     'omeroweb.webmobile',
     'omeroweb.webpublic',
     'omeroweb.webredirect',
+    'omeroweb.websilo',
 )
 
 FEEDBACK_URL = "qa.openmicroscopy.org.uk:80"

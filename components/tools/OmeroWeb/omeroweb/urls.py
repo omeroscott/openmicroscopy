@@ -49,4 +49,5 @@ urlpatterns = patterns('',
     #(r'(?i)^webemdb/', include('omeroweb.webemdb.urls')),
     (r'(?i)^m/', include('omeroweb.webmobile.urls')),
     (r'(?i)^url/', include('omeroweb.webredirect.urls')),
+    (r'(?i)^websilo/', include('omeroweb.websilo.urls')),
 )
