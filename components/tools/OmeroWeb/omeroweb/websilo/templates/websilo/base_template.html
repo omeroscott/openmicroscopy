@@ -1,0 +1,80 @@
+{% extends "webclient/base/base_frame.html" %}
+
+{% block title %}
+	OMERO/HIC
+{% endblock %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% url webstatic "css/menu.css" %}" type="text/css" />
+    
+    <style type="text/css">
+	    #nav li {
+	    float: right;
+	    height: 90px;
+	    width: 50px;
+	    list-style: none outside none;
+	    padding-top:60px ;
+	    }
+		#nav a:hover {background:#F3F3F3;}
+    </style>
+{% endblock %}
+   
+{% block content %}
+
+
+<div id="bodyWrapper">
+    <div id="headerWrapper">
+        <div id="header">
+            <div id="logo"> </div>
+            <div id="menu">
+            	<ul id="nav">
+			    	<li><a href="">Help</a></li>
+			    	<li><a href="">Admin</a></li>
+			    	<li><a href="">Audit</a></li>
+			    	<li><a href="">Jobs</a></li>
+			    	<li><a href="">Query</a></li>
+			    	<li><a href="">Export</a></li>
+			    	<li><a href="{% url websilo_import %}">Import</a></li>
+			    	<li class="contact"><a href="{% url websilo_datasets %}">Silos</a></li>
+		    	</ul>
+            </div>
+        </div>    
+        <div id="header2">
+            {% block header %}{% endblock %}
+            <div id="logout"><a href="{% url websilo_logout %}">logout</a></div>
+        </div>
+    </div>
+    <div id="contentWrapper">
+    
+    <div>
+	  <h1>OMERO/HIC</h1>
+	  <ul>
+
+	  </ul>
+	</div>
+	<div style="clear:both"></div>
+	{% block silodata %}
+
+	{% endblock %}	
+    
+    </div>
+</div>
+
+<div id="footer">
+    <div>
+        <a href="{% url websilo_datasets %}" title="Silos">Silos</a> |  
+        <a href="{% url websilo_import %}" title="Import">Import</a> | 
+        <a href="{% url webindex %}" title="Export">Export</a> | 
+        <a href="{% url webindex %}" title="Query">Query</a> |
+        <a href="{% url webindex %}" title="Jobs">Jobs</a> | 
+        <a href="{% url webindex %}" title="Audit">Audit</a> | 
+        <a href="{% url webindex %}" title="Admin">Admin</a> | 
+		<a href="{% url webindex %}" title="Help">Help</a> 
+	</div>
+    <p>&copy; University of Dundee & Open Microscopy Environment</p>
+</div>
+
+
+
+{% endblock %}
+

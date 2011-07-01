@@ -1,0 +1,16 @@
+{% extends "websilo/base_template.html" %}
+
+{% block silodata %}
+
+<table cellspacing="0" cellpadding="0">			
+	<tr>
+		<th>Dataset ID</th>
+	<tr>
+	{% for project in projectlist %}
+	<tr>
+		<td>{{project}}</td>
+	</tr>
+	{% endfor %}
+</table>
+
+{% endblock %}
