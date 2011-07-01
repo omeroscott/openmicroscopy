@@ -28,14 +28,14 @@
             <div id="logo"> </div>
             <div id="menu">
             	<ul id="nav">
-			    	<li><a href="">Help</a></li>
-			    	<li><a href="">Admin</a></li>
-			    	<li><a href="">Audit</a></li>
-			    	<li><a href="">Jobs</a></li>
-			    	<li><a href="">Query</a></li>
-			    	<li><a href="">Export</a></li>
+			    	<li><a href="{% url websilo_help %}">Help</a></li>
+			    	<li><a href="{% url websilo_admin %}">Admin</a></li>
+			    	<li><a href="{% url websilo_audit %}">Audit</a></li>
+			    	<li><a href="{% url websilo_jobs %}">Jobs</a></li>
+			    	<li><a href="{% url websilo_query %}">Query</a></li>
+			    	<li><a href="{% url websilo_export %}">Export</a></li>
 			    	<li><a href="{% url websilo_import %}">Import</a></li>
-			    	<li><a href="{% url websilo_datasets %}">Silos</a></li>
+			    	<li><a href="{% url websilo_silos %}">Silos</a></li>
 			    	<li><a href="{% url websilo_index %}">Home</a></li>
 		    	</ul>
             </div>
@@ -64,14 +64,14 @@
 <div id="footer">
     <div>
 	  	<a href="{% url websilo_index %}">Home</a>|
-        <a href="{% url websilo_datasets %}" title="Silos">Silos</a> |  
+        <a href="{% url websilo_silos %}" title="Silos">Silos</a> |  
         <a href="{% url websilo_import %}" title="Import">Import</a> | 
-        <a href="{% url webindex %}" title="Export">Export</a> | 
-        <a href="{% url webindex %}" title="Query">Query</a> |
-        <a href="{% url webindex %}" title="Jobs">Jobs</a> | 
-        <a href="{% url webindex %}" title="Audit">Audit</a> | 
-        <a href="{% url webindex %}" title="Admin">Admin</a> | 
-		<a href="{% url webindex %}" title="Help">Help</a> 
+        <a href="{% url websilo_export %}" title="Export">Export</a> | 
+        <a href="{% url websilo_query %}" title="Query">Query</a> |
+        <a href="{% url websilo_jobs %}" title="Jobs">Jobs</a> | 
+        <a href="{% url websilo_audit %}" title="Audit">Audit</a> | 
+        <a href="{% url websilo_admin %}" title="Admin">Admin</a> | 
+		<a href="{% url websilo_help %}" title="Help">Help</a> 
 	</div>
     <p>&copy; University of Dundee & Open Microscopy Environment</p>
 </div>

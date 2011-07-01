@@ -59,7 +59,15 @@ def logout (request):
 def index(request, **kwargs):
     conn = kwargs['conn']
     return render_to_response('websilo/index.html', {'client': conn})
-    
+
+@isUserConnected
+def view_silos(request, **kwargs):
+	conn = kwargs['conn']
+	#conn = BlitzGateway("root", "omero", host="localhost", port=4064)
+	#conn.connect()
+	projectList = [project.getId() for project in conn.listProjects()]
+	return render_to_response('websilo/view_silos.html', {'projectlist' : projectList})
+
 @isUserConnected    
 def import_datasets(request, **kwargs):
 
@@ -87,9 +95,31 @@ def import_datasets(request, **kwargs):
 	return render_to_response('websilo/import_datasets.html', {'datasetid' : newID})
 
 @isUserConnected
-def view_datasets(request, **kwargs):
+def export_datasets(request, **kwargs):
 	conn = kwargs['conn']
-	#conn = BlitzGateway("root", "omero", host="localhost", port=4064)
-	#conn.connect()
-	projectList = [project.getId() for project in conn.listProjects()]
-	return render_to_response('websilo/view_datasets.html', {'projectlist' : projectList})
+	return render_to_response('websilo/export_datasets.html', {'client': conn})
+
+@isUserConnected
+def run_query(request, **kwargs):
+	conn = kwargs['conn']
+	return render_to_response('websilo/run_query.html', {'client': conn})
+
+@isUserConnected
+def manage_jobs(request, **kwargs):
+	conn = kwargs['conn']
+	return render_to_response('websilo/manage_jobs.html', {'client': conn})
+
+@isUserConnected
+def audit_silos(request, **kwargs):
+	conn = kwargs['conn']
+	return render_to_response('websilo/audit_silos.html', {'client': conn})
+
+@isUserConnected
+def admin(request, **kwargs):
+	conn = kwargs['conn']
+	return render_to_response('websilo/admin.html', {'client': conn})
+
+@isUserConnected
+def websilo_help(request, **kwargs):
+	conn = kwargs['conn']
+	return render_to_response('websilo/help.html', {'client': conn})
