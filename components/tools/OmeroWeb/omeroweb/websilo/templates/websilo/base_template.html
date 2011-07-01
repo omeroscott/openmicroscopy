@@ -35,7 +35,8 @@
 			    	<li><a href="">Query</a></li>
 			    	<li><a href="">Export</a></li>
 			    	<li><a href="{% url websilo_import %}">Import</a></li>
-			    	<li class="contact"><a href="{% url websilo_datasets %}">Silos</a></li>
+			    	<li><a href="{% url websilo_datasets %}">Silos</a></li>
+			    	<li><a href="{% url websilo_index %}">Home</a></li>
 		    	</ul>
             </div>
         </div>    
@@ -62,6 +63,7 @@
 
 <div id="footer">
     <div>
+	  	<a href="{% url websilo_index %}">Home</a>|
         <a href="{% url websilo_datasets %}" title="Silos">Silos</a> |  
         <a href="{% url websilo_import %}" title="Import">Import</a> | 
         <a href="{% url webindex %}" title="Export">Export</a> | 
