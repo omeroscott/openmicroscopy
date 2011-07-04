@@ -82,7 +82,7 @@ def view_silos(request, **kwargs):
 def import_datasets(request, **kwargs):
 
 	UUID =  uuid.uuid1()
-	newID = "silo_" + str(UUID)
+	siloname = "silo_" + str(UUID)
 	query = request.POST.get('id', '')
 	if query:
 		ID = query
@@ -104,7 +104,7 @@ def import_datasets(request, **kwargs):
 	else:
 		ID = ' '
 
-	return render_to_response('websilo/import_datasets.html', {'siloid' : newID})
+	return render_to_response('websilo/import_datasets.html', {'siloname' : siloname})
 
 @isUserConnected
 def export_datasets(request, **kwargs):

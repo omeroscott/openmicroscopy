@@ -3,10 +3,10 @@
 {% block silodata %}
 
 	<h2>Create Silo</h2>
-	<p>You are about to create a new OMERO.websilo with ID # {{ siloid }}</p>
+	<p>You are about to create a new OMERO.websilo with ID # {{ siloname }}</p>
 	
 <form action="." method="post">
-	<input type="text" name="id" value ="{{ siloid }}">
+	<input type="text" name="id" value ="{{ siloname }}">
 	
 	<input type="submit" value="Import" />
 </form>
