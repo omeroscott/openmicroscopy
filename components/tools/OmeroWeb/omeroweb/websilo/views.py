@@ -81,26 +81,30 @@ def view_silos(request, **kwargs):
 @isUserConnected    
 def import_datasets(request, **kwargs):
 
+	UUID =  uuid.uuid1()
+	newID = "silo_" + str(UUID)
 	query = request.POST.get('id', '')
 	if query:
 		ID = query
 		if ID:
-			#client = omero.client("127.0.0.1")
-			#session = client.createSession("root", "omero")
-			conn = kwargs['conn']
-			updateService = conn.getUpdateService()
+			#conn = kwargs['conn']
+			#updateService = conn.getUpdateService()
 
-			project = omero.model.ProjectI()
-			project.name = rstring(str(ID))
-			dataset = omero.model.DatasetI()
-			dataset.name = rstring(str(ID))
-			dataset.linkProject(project)
+			#project = omero.model.ProjectI()
+			#project.name = rstring(str(ID))
+			#dataset = omero.model.DatasetI()
+			#dataset.name = rstring(str(ID))
+			#dataset.linkProject(project)
 
-			ds = updateService.saveAndReturnObject(dataset)
+			#ds = updateService.saveAndReturnObject(dataset)
+			conn = omero.client("127.0.0.1")
+			session = conn.createSession("root", "omero")
+			newsilo = SiloApi(conn, None)
+			newsilo.create(str(ID))
 	else:
 		ID = ' '
 
-	return render_to_response('websilo/import_datasets.html', {'datasetid' : newID})
+	return render_to_response('websilo/import_datasets.html', {'siloid' : newID})
 
 @isUserConnected
 def export_datasets(request, **kwargs):

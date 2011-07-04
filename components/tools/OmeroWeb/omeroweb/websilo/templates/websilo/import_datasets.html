@@ -2,11 +2,11 @@
 
 {% block silodata %}
 
-	<h2>Import Dataset</h2>
-	<p>You are about to import dataset ID #{{ datasetid }}</p>
+	<h2>Create Silo</h2>
+	<p>You are about to create a new OMERO.websilo with ID # {{ siloid }}</p>
 	
 <form action="." method="post">
-	<input type="text" name="id" value ="{{ datasetid }}">
+	<input type="text" name="id" value ="{{ siloid }}">
 	
 	<input type="submit" value="Import" />
 </form>
