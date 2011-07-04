@@ -85,8 +85,8 @@ def import_datasets(request, **kwargs):
 	siloname = "silo_" + str(UUID)
 	query = request.POST.get('id', '')
 	if query:
-		ID = query
-		if ID:
+		name = query
+		if name:
 			#conn = kwargs['conn']
 			#updateService = conn.getUpdateService()
 
@@ -100,9 +100,9 @@ def import_datasets(request, **kwargs):
 			conn = omero.client("127.0.0.1")
 			session = conn.createSession("root", "omero")
 			newsilo = SiloApi(conn, None)
-			newsilo.create(str(ID))
+			newsilo.create(str(name))
 	else:
-		ID = ' '
+		name = ' '
 
 	return render_to_response('websilo/import_datasets.html', {'siloname' : siloname})
 
