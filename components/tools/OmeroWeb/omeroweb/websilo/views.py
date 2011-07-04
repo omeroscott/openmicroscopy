@@ -5,6 +5,8 @@ from omeroweb.webgateway.views import getBlitzConnection, _session_logout
 from omeroweb.webgateway import views as webgateway_views
 from omeroweb.webclient.views import isUserConnected
 
+from omero.plugins.silo import SiloApi
+
 from cStringIO import StringIO
 
 import uuid
@@ -17,6 +19,7 @@ from omero.rtypes import rint, rstring
 import omero.gateway
 from omero.rtypes import *
 logger = logging.getLogger('websilo')    
+
     
 def login (request):
     """
@@ -62,17 +65,22 @@ def index(request, **kwargs):
 
 @isUserConnected
 def view_silos(request, **kwargs):
-	conn = kwargs['conn']
-	#conn = BlitzGateway("root", "omero", host="localhost", port=4064)
-	#conn.connect()
-	projectList = [project.getId() for project in conn.listProjects()]
-	return render_to_response('websilo/view_silos.html', {'projectlist' : projectList})
+	#conn = kwargs['conn']
+	
+	#projectList = [project.getId() for project in conn.listProjects()]
+	#return render_to_response('websilo/view_silos.html', {'projectlist' : projectList})
+
+	# SiloApi doesn't seem to work with blitz connection so creating a regular omero.client connection for now
+	conn = omero.client("127.0.0.1")
+	session = conn.createSession("root", "omero")
+	tmpsilo = SiloApi(conn, None)
+
+	silolist = tmpsilo.list(0,100)	
+	return render_to_response('websilo/view_silos.html', {'silolist' : silolist})
 
 @isUserConnected    
 def import_datasets(request, **kwargs):
 
-	newID =  uuid.uuid1()
-	
 	query = request.POST.get('id', '')
 	if query:
 		ID = query
