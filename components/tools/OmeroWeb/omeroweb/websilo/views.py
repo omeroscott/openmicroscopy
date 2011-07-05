@@ -6,7 +6,7 @@ from omeroweb.webgateway import views as webgateway_views
 from omeroweb.webclient.views import isUserConnected
 
 from omero.plugins.silo import SiloApi
-
+from omero.plugins.silo import SiloControl
 from cStringIO import StringIO
 
 import uuid
@@ -15,6 +15,7 @@ import settings
 import logging
 import traceback
 import omero
+import omero.columns
 from omero.rtypes import rint, rstring
 import omero.gateway
 from omero.rtypes import *
@@ -80,6 +81,7 @@ def view_silos(request, **kwargs):
 
 @isUserConnected    
 def import_datasets(request, **kwargs):
+	from omero.grid import StringColumn, LongColumn
 
 	UUID =  uuid.uuid1()
 	siloname = "silo_" + str(UUID)
@@ -100,7 +102,23 @@ def import_datasets(request, **kwargs):
 			conn = omero.client("127.0.0.1")
 			session = conn.createSession("root", "omero")
 			newsilo = SiloApi(conn, None)
-			newsilo.create(str(name))
+			siloid = newsilo.create(str(name))
+
+			# Create AuditLog
+
+			cols = []
+			cols.append( omero.columns.LongColumnI("user_id", "", None) )
+			cols.append( omero.columns.LongColumnI("timestamp", "", None) )
+			cols.append( omero.columns.StringColumnI("resource", "", 100, None) )
+			cols.append( omero.columns.StringColumnI("action", "", 100, None) )
+			cols.append( omero.columns.StringColumnI("message", "", 100, None) )
+			logging.info(cols)
+
+			newsilo.define(siloid, "AuditLog", cols, skip_audit = True)
+
+			tables = newsilo.tables(198,0,100)
+			
+			return render_to_response('websilo/import_datasets.html', {'siloname' : tables})
 	else:
 		name = ' '
 
