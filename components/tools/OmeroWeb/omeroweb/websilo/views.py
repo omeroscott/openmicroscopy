@@ -122,10 +122,24 @@ def import_datasets(request, **kwargs):
 			tableCols.append( omero.columns.LongColumnI("measurement_1", "", None) )
 			tableCols.append( omero.columns.LongColumnI("measurement_2", "", None) )
 			logging.info(tableCols)
-			newsilo.define(siloid, "TypeA", tableCols, skip_audit = False)
-
+			of =  newsilo.define(siloid, "TypeA", tableCols, skip_audit = False)
+			tableid = of.id.val
+			
+			cs = newsilo.headers(tableid)
+			for c in cs:
+				c.values = []
+			for x in range(50):
+				cs[0].values.append(("%s" % x) * 12)
+				cs[1].values.append(x)
+				cs[2].values.append(-x)
+			newsilo.write(tableid, cs)
+			
+			#logging.info("websilo :: "+str(tableid))
 			#tables = newsilo.tables(198,0,100)
 			#logging.info(tables)
+			
+			
+			
 			
 			return render_to_response('websilo/import_datasets.html', {'siloname' : siloname})
 	else:
