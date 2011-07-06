@@ -99,9 +99,10 @@ def import_datasets(request, **kwargs):
 			#dataset.linkProject(project)
 
 			#ds = updateService.saveAndReturnObject(dataset)
+
 			conn = omero.client("127.0.0.1")
 			session = conn.createSession("root", "omero")
-			newsilo = SiloApi(conn, None)
+			newsilo = SiloApi(conn, conn.sf.getAdminService().getEventContext())
 			siloid = newsilo.create(str(name))
 
 			# Create AuditLog
@@ -113,12 +114,20 @@ def import_datasets(request, **kwargs):
 			cols.append( omero.columns.StringColumnI("action", "", 100, None) )
 			cols.append( omero.columns.StringColumnI("message", "", 100, None) )
 			logging.info(cols)
-
 			newsilo.define(siloid, "AuditLog", cols, skip_audit = True)
-
-			tables = newsilo.tables(198,0,100)
 			
-			return render_to_response('websilo/import_datasets.html', {'siloname' : tables})
+			# Create demo table
+			tableCols = []
+			tableCols.append( omero.columns.StringColumnI("personal_id", "", 12, None) )
+			tableCols.append( omero.columns.LongColumnI("measurement_1", "", None) )
+			tableCols.append( omero.columns.LongColumnI("measurement_2", "", None) )
+			logging.info(tableCols)
+			newsilo.define(siloid, "TypeA", tableCols, skip_audit = False)
+
+			#tables = newsilo.tables(198,0,100)
+			#logging.info(tables)
+			
+			return render_to_response('websilo/import_datasets.html', {'siloname' : siloname})
 	else:
 		name = ' '
 
