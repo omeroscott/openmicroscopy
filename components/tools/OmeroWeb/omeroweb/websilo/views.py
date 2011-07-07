@@ -65,7 +65,7 @@ def index(request, **kwargs):
     return render_to_response('websilo/index.html', {'client': conn})
 
 @isUserConnected
-def view_silos(request, **kwargs):
+def view_datasets(request, **kwargs):
 	#conn = kwargs['conn']
 	
 	#projectList = [project.getId() for project in conn.listProjects()]
