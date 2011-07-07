@@ -76,7 +76,7 @@ def view_datasets(request, **kwargs):
 	session = conn.createSession("root", "omero")
 	tmpsilo = SiloApi(conn, None)
 
-	silolist = tmpsilo.list(0,100)	
+	silolist = tmpsilo.list(0,100)
 	return render_to_response('websilo/view_silos.html', {'silolist' : silolist})
 
 @isUserConnected
