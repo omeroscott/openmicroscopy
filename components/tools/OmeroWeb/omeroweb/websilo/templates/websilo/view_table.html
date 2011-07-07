@@ -1,0 +1,22 @@
+{% extends "websilo/base_template.html" %}
+
+{% block silodata %}
+
+<table cellspacing="5" cellpadding="5" align="center">			
+	<tr>
+		<th>ID</th>
+		<th>Path</th>
+		<th>Name</th>
+		<th>Size</th>
+	<tr>
+	{% for silo in silolist %}
+		<tr>
+			<td>{{silo.0}}</td>
+			<td>{{silo.1}}</td>
+			<td>{{silo.2}}</td>
+			<td>{{silo.3}}</td>
+		</tr>
+	{% endfor %}
+</table>
+
+{% endblock %}

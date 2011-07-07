@@ -81,9 +81,11 @@ def view_datasets(request, **kwargs):
 
 @isUserConnected
 def view_dataset(request, **kwargs):
-	
-	logging.info(str(kwargs['datasetid']))
-	return render_to_response('websilo/index.html', {})
+	conn = omero.client("127.0.0.1")
+	session = conn.createSession("root", "omero")
+	silo = SiloApi(conn, conn.sf.getAdminService().getEventContext())
+	tables = silo.tables(str(kwargs['datasetid']),0,100)
+	return render_to_response('websilo/view_dataset.html', {'dataset' : tables})
 	
 @isUserConnected
 def view_table(request, **kwargs):
