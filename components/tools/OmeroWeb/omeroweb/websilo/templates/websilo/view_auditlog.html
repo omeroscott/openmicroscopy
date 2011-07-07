@@ -4,17 +4,21 @@
 
 <table cellspacing="5" cellpadding="5" align="center">			
 	<tr>
-		<th>ID</th>
-		<th>Path</th>
-		<th>Name</th>
-		<th>Size</th>
+		<th>Row</th>
+		<th>User ID</th>
+		<th>Timestamp</th>
+		<th>Resource</th>
+		<th>Action</th>
+		<th>Message</th>
 	<tr>
-	{% for silo in silolist %}
+	{% for entry in auditlog %}
 		<tr>
-			<td>{{silo.0}}</td>
-			<td>{{silo.1}}</td>
-			<td>{{silo.2}}</td>
-			<td>{{silo.3}}</td>
+			<td>{{ entry.0 }}</td>
+			<td>{{ entry.1 }}</td>
+			<td>{{ entry.2 }}</td>
+			<td>{{ entry.3 }}</td>
+			<td>{{ entry.4 }}</td>
+			<td>{{ entry.5 }}</td>
 		</tr>
 	{% endfor %}
 </table>

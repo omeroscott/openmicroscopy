@@ -95,8 +95,19 @@ def view_table(request, **kwargs):
 	
 @isUserConnected
 def view_auditlog(request, **kwargs):
-	logging.info(str(kwargs['datasetid']))
-	return render_to_response('websilo/index.html', {})
+	conn = omero.client("127.0.0.1")
+	session = conn.createSession("root", "omero")
+	silo = SiloApi(conn, conn.sf.getAdminService().getEventContext())	
+	data = silo.auditlog(kwargs['datasetid'], 0, 100)
+	
+	auditlog = []
+	for idx, row in enumerate(data.rowNumbers):
+		values = []		
+		for x in data.columns:
+			values.append(x.values[idx])
+			auditlog.append(values)
+
+	return render_to_response('websilo/view_auditlog.html', {'auditlog': auditlog })
 
 @isUserConnected    
 def import_datasets(request, **kwargs):
