@@ -79,6 +79,23 @@ def view_datasets(request, **kwargs):
 	silolist = tmpsilo.list(0,100)	
 	return render_to_response('websilo/view_silos.html', {'silolist' : silolist})
 
+@isUserConnected
+def view_dataset(request, **kwargs):
+	
+	logging.info(str(kwargs['datasetid']))
+	return render_to_response('websilo/index.html', {})
+	
+@isUserConnected
+def view_table(request, **kwargs):
+	logging.info(str(kwargs['datasetid']))
+	logging.info(str(kwargs['tableid']))
+	return render_to_response('websilo/index.html', {})
+	
+@isUserConnected
+def view_auditlog(request, **kwargs):
+	logging.info(str(kwargs['datasetid']))
+	return render_to_response('websilo/index.html', {})
+
 @isUserConnected    
 def import_datasets(request, **kwargs):
 	from omero.grid import StringColumn, LongColumn
