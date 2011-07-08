@@ -11,7 +11,7 @@
 	<tr>
 	{% for table in dataset %}
 		<tr>
-			<td><a href="{% url websilo_view_dataset table.0 %}">{{table.0}}</a></td>
+			<td><a href="{% url websilo_view_table datasetid table.0 %}">{{table.0}}</a></td>
 			<td>{{table.1}}</td>
 			<td>{{table.2}}</td>
 			<td>{{table.3}}</td>

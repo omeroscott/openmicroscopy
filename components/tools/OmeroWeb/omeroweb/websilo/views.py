@@ -85,7 +85,8 @@ def view_dataset(request, **kwargs):
 	session = conn.createSession("root", "omero")
 	silo = SiloApi(conn, conn.sf.getAdminService().getEventContext())
 	tables = silo.tables(str(kwargs['datasetid']),0,100)
-	return render_to_response('websilo/view_dataset.html', {'dataset' : tables})
+	datasetid = kwargs['datasetid']
+	return render_to_response('websilo/view_dataset.html', {'dataset' : tables, 'datasetid' : datasetid})
 	
 @isUserConnected
 def view_table(request, **kwargs):
