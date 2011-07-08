@@ -92,12 +92,21 @@ def view_table(request, **kwargs):
 	conn = omero.client("127.0.0.1")
 	session = conn.createSession("root", "omero")
 	silo = SiloApi(conn, conn.sf.getAdminService().getEventContext())	
+
 	heads = silo.headers(kwargs['tableid'])
 	header = []
 	for idx, col in enumerate(heads):
 		header.append(str(col.name))
 	
-	return render_to_response('websilo/view_table.html', {'header' : header})
+	data = silo.tail(kwargs['tableid'],0,100)
+	body = []
+	for idx, row in enumerate(data.rowNumbers):
+		values = [row]		
+		for col in data.columns:
+			values.append(col.values[idx])
+		body.append(values)
+		
+	return render_to_response('websilo/view_table.html', {'header' : header, 'rows' : body})
 	
 @isUserConnected
 def view_auditlog(request, **kwargs):
@@ -108,10 +117,10 @@ def view_auditlog(request, **kwargs):
 	
 	auditlog = []
 	for idx, row in enumerate(data.rowNumbers):
-		values = []		
+		values = [row]
 		for x in data.columns:
 			values.append(x.values[idx])
-			auditlog.append(values)
+		auditlog.append(values)
 
 	return render_to_response('websilo/view_auditlog.html', {'auditlog': auditlog })
 
