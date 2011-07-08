@@ -2,13 +2,12 @@
 
 {% block silodata %}
 
-<table cellspacing="5" cellpadding="5" align="center">			
+<table cellspacing="5" cellpadding="5" align="center">
 	<tr>
-		<th>ID</th>
-		<th>Path</th>
-		<th>Name</th>
-		<th>Size</th>
-	<tr>
+	{% for col in header %}
+			<th>{{col}}</th>
+	{% endfor %}
+	</tr>
 	{% for silo in silolist %}
 		<tr>
 			<td>{{silo.0}}</td>

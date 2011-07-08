@@ -89,9 +89,15 @@ def view_dataset(request, **kwargs):
 	
 @isUserConnected
 def view_table(request, **kwargs):
-	logging.info(str(kwargs['datasetid']))
-	logging.info(str(kwargs['tableid']))
-	return render_to_response('websilo/index.html', {})
+	conn = omero.client("127.0.0.1")
+	session = conn.createSession("root", "omero")
+	silo = SiloApi(conn, conn.sf.getAdminService().getEventContext())	
+	heads = silo.headers(kwargs['tableid'])
+	header = []
+	for idx, col in enumerate(heads):
+		header.append(str(col.name))
+	
+	return render_to_response('websilo/view_table.html', {'header' : header})
 	
 @isUserConnected
 def view_auditlog(request, **kwargs):
