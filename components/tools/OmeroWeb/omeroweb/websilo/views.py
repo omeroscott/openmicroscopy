@@ -95,7 +95,7 @@ def view_table(request, **kwargs):
 	silo = SiloApi(conn, conn.sf.getAdminService().getEventContext())	
 
 	heads = silo.headers(kwargs['tableid'])
-	header = []
+	header = ["Row"]
 	for idx, col in enumerate(heads):
 		header.append(str(col.name))
 	
