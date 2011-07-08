@@ -4,13 +4,12 @@
 
 <table cellspacing="5" cellpadding="5" align="center">			
 	<tr>
-		<th>Row</th>
-		<th>User ID</th>
-		<th>Timestamp</th>
-		<th>Resource</th>
-		<th>Action</th>
-		<th>Message</th>
-	<tr>
+	{% for col in header %}
+			<th>{{col}}</th>
+	{% endfor %}
+	</tr>
+
+
 	{% for entry in auditlog %}
 		<tr>
 			<td>{{ entry.0 }}</td>

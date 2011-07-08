@@ -114,8 +114,22 @@ def view_auditlog(request, **kwargs):
 	conn = omero.client("127.0.0.1")
 	session = conn.createSession("root", "omero")
 	silo = SiloApi(conn, conn.sf.getAdminService().getEventContext())	
-	data = silo.auditlog(kwargs['datasetid'], 0, 100)
-	
+
+	tableset = silo.tables(kwargs['datasetid'], 0, 1000)
+	auditLogID = ""
+	for table in tableset:
+		if str(table[2]) == "AuditLog":
+			auditLogID = str(table[0])
+			break
+		else:
+			logging.info("No AuditLog found for silo id #"+kwargs['datasetid'])
+
+	heads = silo.headers(str(auditLogID))
+	header = ["Row"]
+	for idx, col in enumerate(heads):
+		header.append(str(col.name))
+
+	data = silo.auditlog(kwargs['datasetid'], 0, 100)	
 	auditlog = []
 	for idx, row in enumerate(data.rowNumbers):
 		values = [row]
@@ -123,7 +137,7 @@ def view_auditlog(request, **kwargs):
 			values.append(x.values[idx])
 		auditlog.append(values)
 
-	return render_to_response('websilo/view_auditlog.html', {'auditlog': auditlog })
+	return render_to_response('websilo/view_auditlog.html', {'header' : header, 'auditlog': auditlog })
 
 @isUserConnected    
 def import_datasets(request, **kwargs):
