@@ -59,40 +59,32 @@ def logout (request):
     return HttpResponseRedirect(reverse('websilo_index'))
 
 
-@isUserConnected    # wrapper handles login (or redirects to webclient login). Connection passed in **kwargs
+@isUserConnected
 def index(request, **kwargs):
     conn = kwargs['conn']
     return render_to_response('websilo/index.html', {'client': conn})
 
 @isUserConnected
 def view_datasets(request, **kwargs):
-	#conn = kwargs['conn']
+	conn = kwargs['conn']
 	
-	#projectList = [project.getId() for project in conn.listProjects()]
-	#return render_to_response('websilo/view_silos.html', {'projectlist' : projectList})
-
-	# SiloApi doesn't seem to work with blitz connection so creating a regular omero.client connection for now
-	conn = omero.client("127.0.0.1")
-	session = conn.createSession("root", "omero")
-	tmpsilo = SiloApi(conn, None)
+	tmpsilo = SiloApi(conn.c, None)
 
 	silolist = tmpsilo.list(0,100)
 	return render_to_response('websilo/view_silos.html', {'silolist' : silolist})
 
 @isUserConnected
 def view_dataset(request, **kwargs):
-	conn = omero.client("127.0.0.1")
-	session = conn.createSession("root", "omero")
-	silo = SiloApi(conn, conn.sf.getAdminService().getEventContext())
+	conn = kwargs['conn']
+	silo = SiloApi(conn.c, conn.c.sf.getAdminService().getEventContext())
 	tables = silo.tables(str(kwargs['datasetid']),0,100)
 	datasetid = kwargs['datasetid']
 	return render_to_response('websilo/view_dataset.html', {'dataset' : tables, 'datasetid' : datasetid})
 	
 @isUserConnected
 def view_table(request, **kwargs):
-	conn = omero.client("127.0.0.1")
-	session = conn.createSession("root", "omero")
-	silo = SiloApi(conn, conn.sf.getAdminService().getEventContext())	
+	conn = kwargs['conn']
+	silo = SiloApi(conn.c, conn.c.sf.getAdminService().getEventContext())
 
 	heads = silo.headers(kwargs['tableid'])
 	header = ["Row"]
@@ -111,9 +103,8 @@ def view_table(request, **kwargs):
 	
 @isUserConnected
 def view_auditlog(request, **kwargs):
-	conn = omero.client("127.0.0.1")
-	session = conn.createSession("root", "omero")
-	silo = SiloApi(conn, conn.sf.getAdminService().getEventContext())	
+	conn = kwargs['conn']
+	silo = SiloApi(conn.c, conn.c.sf.getAdminService().getEventContext())
 
 	tableset = silo.tables(kwargs['datasetid'], 0, 1000)
 	auditLogID = ""
@@ -143,26 +134,15 @@ def view_auditlog(request, **kwargs):
 def import_datasets(request, **kwargs):
 	from omero.grid import StringColumn, LongColumn
 
+	conn = kwargs['conn']
+
 	UUID =  uuid.uuid1()
 	siloname = "silo_" + str(UUID)
 	query = request.POST.get('id', '')
 	if query:
 		name = query
 		if name:
-			#conn = kwargs['conn']
-			#updateService = conn.getUpdateService()
-
-			#project = omero.model.ProjectI()
-			#project.name = rstring(str(ID))
-			#dataset = omero.model.DatasetI()
-			#dataset.name = rstring(str(ID))
-			#dataset.linkProject(project)
-
-			#ds = updateService.saveAndReturnObject(dataset)
-
-			conn = omero.client("127.0.0.1")
-			session = conn.createSession("root", "omero")
-			newsilo = SiloApi(conn, conn.sf.getAdminService().getEventContext())
+			newsilo = SiloApi(conn.c, conn.c.sf.getAdminService().getEventContext())
 			siloid = newsilo.create(str(name))
 
 			# Create AuditLog
@@ -193,13 +173,6 @@ def import_datasets(request, **kwargs):
 				cs[1].values.append(x)
 				cs[2].values.append(-x)
 			newsilo.write(tableid, cs)
-			
-			#logging.info("websilo :: "+str(tableid))
-			#tables = newsilo.tables(198,0,100)
-			#logging.info(tables)
-			
-			
-			
 			
 			return render_to_response('websilo/import_datasets.html', {'siloname' : siloname})
 	else:
