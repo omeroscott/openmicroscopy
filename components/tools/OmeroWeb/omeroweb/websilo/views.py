@@ -65,6 +65,15 @@ def index(request, **kwargs):
     return render_to_response('websilo/index.html', {'client': conn})
 
 @isUserConnected
+def view_alias(request, **kwargs):
+	conn = kwargs['conn']
+	
+	tmpsilo = SiloApi(conn.c, None)
+
+	silolist = tmpsilo.list(0,100)
+	return render_to_response('websilo/view_alias.html', {'silolist' : silolist})
+
+@isUserConnected
 def view_datasets(request, **kwargs):
 	conn = kwargs['conn']
 	
